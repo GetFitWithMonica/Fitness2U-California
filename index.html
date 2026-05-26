@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Fitness2U">
+<title>Fitness2U California</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;color:#1a1a1a;min-height:100vh;}
+.app{max-width:480px;margin:0 auto;padding:16px;}
+.screen{display:none;}.screen.active{display:block;}
+.brand{text-align:center;padding:32px 0 24px;}
+.brand-logo{font-size:28px;font-weight:700;color:#185FA5;letter-spacing:-0.5px;}
+.brand-logo span{color:#1D9E75;}
+.brand-sub{font-size:13px;color:#888;margin-top:4px;}
+.card{background:#fff;border-radius:16px;padding:20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+.card-title{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;}
+.login-section h2{font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:4px;}
+.login-section p{font-size:13px;color:#888;margin-bottom:14px;}
+.field{margin-bottom:12px;}
+.field label{font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;background:#fff;color:#1a1a1a;outline:none;transition:border-color .2s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#185FA5;}
+.field textarea{resize:none;min-height:72px;}
+.btn{width:100%;padding:14px;font-size:15px;font-weight:600;cursor:pointer;border:none;border-radius:12px;transition:opacity .2s,transform .1s;}
+.btn:active{transform:scale(0.98);opacity:0.9;}
+.btn-blue{background:#185FA5;color:#fff;}
+.btn-green{background:#1D9E75;color:#fff;}
+.btn-outline{background:#fff;color:#185FA5;border:1.5px solid #185FA5;}
+.btn-sm{padding:9px 16px;font-size:13px;width:auto;border-radius:9px;}
+.err{font-size:12px;color:#c0392b;margin-top:6px;display:none;padding:8px 12px;background:#fdf0f0;border-radius:8px;}
+.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #f0f0f0;}
+.nav-brand{font-size:17px;font-weight:700;color:#185FA5;}
+.nav-brand span{color:#1D9E75;}
+.nav-sub{font-size:11px;color:#aaa;margin-top:1px;}
+.nav-right{font-size:13px;color:#185FA5;cursor:pointer;font-weight:500;}
+.tab-row{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:18px;}
+.tab-row-3{grid-template-columns:repeat(3,1fr);}
+.tab{padding:10px;font-size:13px;font-weight:600;cursor:pointer;text-align:center;border-radius:10px;background:#f0f0f0;color:#888;border:none;transition:all .2s;}
+.tab.active{background:#185FA5;color:#fff;}
+.tab-content{display:none;}.tab-content.active{display:block;}
+.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;}
+.metric{background:#f8f9ff;border-radius:12px;padding:14px;}
+.metric-label{font-size:11px;color:#888;margin-bottom:3px;}
+.metric-value{font-size:24px;font-weight:700;color:#185FA5;}
+.metric-sub{font-size:11px;color:#aaa;margin-top:2px;}
+.pb-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f5f5f5;}
+.pb-row:last-child{border-bottom:none;}
+.pb-name{font-size:13px;color:#444;}
+.pb-val{font-size:13px;font-weight:700;color:#185FA5;}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;}
+.badge-up{background:#e6f7f1;color:#0F6E56;}
+.badge-info{background:#e6f1fb;color:#0C447C;}
+.goal-bg{background:#f0f0f0;border-radius:99px;height:10px;margin:8px 0 4px;overflow:hidden;}
+.goal-fill{height:100%;border-radius:99px;background:#185FA5;}
+.goal-row{display:flex;justify-content:space-between;font-size:11px;color:#aaa;}
+.session-row{padding:12px 0;border-bottom:1px solid #f5f5f5;display:flex;justify-content:space-between;align-items:flex-start;}
+.session-row:last-child{border-bottom:none;}
+.session-date{font-size:14px;font-weight:600;color:#1a1a1a;}
+.session-detail{font-size:12px;color:#888;margin-top:3px;line-height:1.4;}
+.session-notes{font-size:11px;color:#aaa;margin-top:3px;font-style:italic;}
+.ex-card{background:#f8f9ff;border-radius:12px;padding:12px;margin-bottom:8px;}
+.ex-name-in{width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:9px;font-size:14px;margin-bottom:8px;background:#fff;}
+.ex-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.ex-grid input{padding:9px 6px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;text-align:center;background:#fff;width:100%;}
+.ex-glabel{font-size:10px;color:#aaa;text-align:center;margin-bottom:3px;font-weight:600;text-transform:uppercase;}
+.remove-btn{font-size:12px;color:#c0392b;background:none;border:none;cursor:pointer;padding:6px 0;display:block;}
+.tip-row{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid #f5f5f5;}
+.tip-row:last-child{border-bottom:none;padding-bottom:0;}
+.tip-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+.tip-text{font-size:13px;color:#444;line-height:1.5;}
+.tip-label{font-size:11px;font-weight:700;color:#888;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em;}
+.profile-field{padding:10px 0;border-bottom:1px solid #f5f5f5;display:flex;gap:10px;align-items:flex-start;}
+.profile-field:last-child{border-bottom:none;}
+.profile-icon{font-size:18px;width:28px;flex-shrink:0;margin-top:1px;}
+.profile-label{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;}
+.profile-value{font-size:14px;color:#1a1a1a;}
+.success{background:#e6f7f1;color:#0F6E56;border-radius:10px;padding:12px 16px;font-size:13px;font-weight:600;margin-top:12px;display:none;align-items:center;gap:8px;}
+.chart-wrap{position:relative;width:100%;height:200px;margin-top:8px;}
+.welcome-box{background:#e6f1fb;border-radius:12px;padding:14px 16px;margin-bottom:18px;}
+.welcome-box p{font-size:13px;color:#0C447C;line-height:1.5;}
+.history-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.history-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.history-ex-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:12px;}
+.history-ex-row:last-child{border-bottom:none;}
+.history-ex-name{color:#444;}
+.history-ex-val{font-weight:600;color:#185FA5;}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f5f5f5;}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-label{font-size:13px;color:#444;}
+.toggle-sub{font-size:11px;color:#aaa;margin-top:2px;}
+.toggle{width:44px;height:26px;background:#e0e0e0;border-radius:99px;cursor:pointer;position:relative;transition:background .2s;border:none;}
+.toggle.on{background:#185FA5;}
+.toggle::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.toggle.on::after{left:21px;}
+.divider{height:1px;background:#f0f0f0;margin:14px 0;}
+.scroll-list{max-height:500px;overflow-y:auto;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="screen active" id="screen-login">
+  <div class="brand">
+    <div class="brand-logo">Fitness<span>2U</span> California</div>
+    <div class="brand-sub">Personal training · California</div>
+  </div>
+  <div class="card">
+    <div class="login-section">
+      <h2>🏋️ Trainer login</h2>
+      <p>For Monica only — access your trainer portal to log sessions and manage clients.</p>
+      <div class="field"><label>Trainer password</label><input type="password" id="trainer-pass" placeholder="Enter your password" /></div>
+      <div class="err" id="trainer-err">Incorrect password. Try again.</div>
+      <button class="btn btn-blue" onclick="trainerLogin()">Enter trainer portal</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="login-section">
+      <h2>👤 Client login</h2>
+      <p>Enter your first name to see your personal fitness dashboard, progress, and coaching tips.</p>
+      <div class="field"><label>Your first name</label><input type="text" id="client-name-in" placeholder="e.g. Nelson" /></div>
+      <div class="err" id="client-err">Name not found. Ask Monica to set up your account.</div>
+      <button class="btn btn-green" onclick="clientLogin()">See my dashboard</button>
+    </div>
+  </div>
+  <div style="text-align:center;font-size:12px;color:#bbb;padding:8px 0;">Fitness2U California &copy; 2026</div>
+</div>
+
+<div class="screen" id="screen-trainer">
+  <div class="nav">
+    <div><div class="nav-brand">Fitness<span>2U</span></div><div class="nav-sub">Trainer portal · Monica</div></div>
+    <span class="nav-right" onclick="logout()">Sign out</span>
+  </div>
+  <div class="tab-row tab-row-3">
+    <button class="tab active" onclick="trainerTab('log')" id="ttab-log">Log session</button>
+    <button class="tab" onclick="trainerTab('clients')" id="ttab-clients">Clients</button>
+    <button class="tab" onclick="trainerTab('suggestions')" id="ttab-suggestions">Suggestions</button>
+  </div>
+
+  <div class="tab-content active" id="tcontent-log">
+    <div class="card">
+      <div class="card-title">New session</div>
+      <div class="field"><label>Client</label>
+        <select id="log-client"><option value="">Select client...</option><option value="nelson">Nelson</option></select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="field"><label>Session #</label><input type="text" id="log-snum" placeholder="e.g. 15"/></div>
+        <div class="field"><label>Date</label><input type="date" id="log-date"/></div>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin:4px 0 10px;">Exercises</div>
+      <div id="log-ex-list"></div>
+      <button class="btn btn-outline" style="margin-bottom:12px;" onclick="addLogEx()">+ Add exercise</button>
+      <div class="field"><label>Session notes (optional)</label><textarea id="log-notes" placeholder="e.g. Great energy today, left shoulder still tight..."></textarea></div>
+      <button class="btn btn-blue" onclick="saveLog()">Save session</button>
+      <div class="success" id="log-success">✓ <span id="log-success-msg">Session saved!</span></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tcontent-clients">
+    <div class="card">
+      <div class="card-title">Client roster</div>
+      <div id="client-roster"></div>
+      <div class="divider"></div>
+      <button class="btn btn-outline" onclick="showAddClient()">+ Add new client</button>
+      <div id="add-client-form" style="display:none;margin-top:14px;">
+        <div class="field"><label>First name</label><input type="text" id="new-client-name" placeholder="Client first name"/></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="field"><label>Goal</label>
+            <select id="new-client-goal"><option>Weight loss</option><option>Muscle growth</option><option>General fitness</option><option>Athletic performance</option><option>Just showing up</option></select>
+          </div>
+          <div class="field"><label>Training style</label>
+            <select id="new-client-style"><option>Data-focused</option><option>Just show up</option><option>Mixed</option></select>
+          </div>
+        </div>
+        <div class="field"><label>Equipment used</label><input type="text" id="new-client-equipment" placeholder="e.g. Speediance, free weights"/></div>
+        <div class="field"><label>Physical notes</label><input type="text" id="new-client-physnotes" placeholder="e.g. Left shoulder issue, knee sensitivity"/></div>
+        <div class="field"><label>Between-session reminders</label>
+          <select id="new-client-reminders"><option value="trainer">Send to trainer first (recommended)</option><option value="direct">Send directly to client</option><option value="off">Off</option></select>
+        </div>
+        <button class="btn btn-blue" onclick="saveNewClient()">Save client</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Session history</div>
+      <div class="field"><select id="hist-client-select" onchange="renderTrainerHistory()"><option value="nelson">Nelson</option></select></div>
+      <div class="scroll-list" id="trainer-history-list"></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tcontent-suggestions">
+    <div class="welcome-box"><p>💡 AI suggestions are based on each client's goals and history. Review and approve before sending, or turn on direct delivery below.</p></div>
+    <div class="card">
+      <div class="card-title">Pending suggestions · Nelson</div>
+      <div class="tip-row">
+        <div class="tip-icon" style="background:#e6f1fb;">💪</div>
+        <div>
+          <div class="tip-label">Strength</div>
+          <div class="tip-text">Nelson has hit 22 reps at 70 lbs on chest press consistently. Ready to bump to 75 lbs.</div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="btn btn-green btn-sm">Send to Nelson</button>
+            <button class="btn btn-outline btn-sm">Dismiss</button>
+          </div>
+        </div>
+      </div>
+      <div class="tip-row">
+        <div class="tip-icon" style="background:#e6f7f1;">🚴</div>
+        <div>
+          <div class="tip-label">Between sessions</div>
+          <div class="tip-text">Nelson usually rows between sessions. Tomorrow is leg day — suggest cycling to give his upper back a rest.</div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="btn btn-green btn-sm">Send to Nelson</button>
+            <button class="btn btn-outline btn-sm">Dismiss</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Delivery settings · Nelson</div>
+      <div class="toggle-row">
+        <div><div class="toggle-label">Send directly to Nelson</div><div class="toggle-sub">Skip trainer review for future suggestions</div></div>
+        <button class="toggle" id="toggle-direct" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="toggle-row">
+        <div><div class="toggle-label">Between-session reminders</div><div class="toggle-sub">Workout tips on off days</div></div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screen-client">
+  <div class="nav">
+    <div><div class="nav-brand">Fitness<span>2U</span></div><div class="nav-sub" id="client-nav-sub">My dashboard</div></div>
+    <span class="nav-right" onclick="logout()">Sign out</span>
+  </div>
+  <div class="tab-row">
+    <button class="tab active" onclick="clientTab('overview')" id="ctab-overview">Overview</button>
+    <button class="tab" onclick="clientTab('history')" id="ctab-history">Full history</button>
+  </div>
+
+  <div class="tab-content active" id="ccontent-overview">
+    <div class="welcome-box"><p id="client-welcome">Welcome back! Here's your latest progress. Tap "Full history" to see every session.</p></div>
+    <div class="metric-grid">
+      <div class="metric"><div class="metric-label">Current weight</div><div class="metric-value">193</div><div class="metric-sub">Goal: 190 lbs</div></div>
+      <div class="metric"><div class="metric-label">Total sessions</div><div class="metric-value">80+</div><div class="metric-sub">Since Sep 2023</div></div>
+      <div class="metric"><div class="metric-label">Best plank</div><div class="metric-value">6:00</div><div class="metric-sub">Personal record</div></div>
+      <div class="metric"><div class="metric-label">Air squats/min</div><div class="metric-value">52</div><div class="metric-sub">Latest · Session 14</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Weight goal</div>
+      <div style="font-size:15px;font-weight:600;">193 lbs <span style="color:#aaa;font-size:13px;font-weight:400;">→ goal 190 lbs</span></div>
+      <div class="goal-bg"><div class="goal-fill" style="width:85%"></div></div>
+      <div class="goal-row"><span>Start: ~214 lbs</span><span>Goal: 190 lbs</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Personal bests (2026)</div>
+      <div class="pb-row"><span class="pb-name">Chest press (flat)</span><span class="pb-val">70 lbs · 22 reps <span class="badge badge-up">↑</span></span></div>
+      <div class="pb-row"><span class="pb-name">Squats</span><span class="pb-val">180 lbs · 31 reps <span class="badge badge-up">↑</span></span></div>
+      <div class="pb-row"><span class="pb-name">Donkey kicks</span><span class="pb-val">45 lbs · 20 reps <span class="badge badge-up">↑</span></span></div>
+      <div class="pb-row"><span class="pb-name">Pull-ups</span><span class="pb-val">30 + 30 reps</span></div>
+      <div class="pb-row"><span class="pb-name">Overhead press</span><span class="pb-val">40 lbs · 12 reps <span class="badge badge-up">↑</span></span></div>
+      <div class="pb-row"><span class="pb-name">Air squats/min</span><span class="pb-val">52 reps <span class="badge badge-up">↑ from 37</span></span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Chest press progress · 2026</div>
+      <div style="font-size:12px;color:#888;margin-bottom:4px;">Reps at 70 lbs per session</div>
+      <div class="chart-wrap"><canvas id="cc1" role="img" aria-label="Chest press reps improving from 18 to 22 in 2026">S8=18, S10=21, S11=19, S13=22</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Your profile</div>
+      <div class="profile-field"><div class="profile-icon">🏋️</div><div><div class="profile-label">Equipment</div><div class="profile-value">Speediance touch screen · Blocks weight system</div></div></div>
+      <div class="profile-field"><div class="profile-icon">⚠️</div><div><div class="profile-label">Physical notes</div><div class="profile-value">Left side weaker on pallof press — working on balance</div></div></div>
+      <div class="profile-field"><div class="profile-icon">🎯</div><div><div class="profile-label">Goal</div><div class="profile-value">Weight loss · Target 190 lbs</div></div></div>
+      <div class="profile-field"><div class="profile-icon">📊</div><div><div class="profile-label">Training style</div><div class="profile-value">Data-focused · Tracks progress closely</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">AI coaching tips</div>
+      <div class="tip-row"><div class="tip-icon" style="background:#e6f1fb;">💪</div><div><div class="tip-label">Strength — ready to level up</div><div class="tip-text">You've hit 22 reps at 70 lbs on chest press. Try 75 lbs next session and rebuild from 12 reps — you're ready.</div></div></div>
+      <div class="tip-row"><div class="tip-icon" style="background:#e6f7f1;">🏃</div><div><div class="tip-label">Cardio — huge improvement</div><div class="tip-text">Air squats jumped from 37 to 52 per minute — a 40% gain! Your next milestone is 60/min.</div></div></div>
+      <div class="tip-row"><div class="tip-icon" style="background:#fff8e6;">🎯</div><div><div class="tip-label">Focus — left side balance</div><div class="tip-text">Your left side on pallof press is weaker. Single-arm cable rows 2x/week will help even things out.</div></div></div>
+      <div class="tip-row"><div class="tip-icon" style="background:#f0f0f0;">⚖️</div><div><div class="tip-label">Goal — almost there</div><div class="tip-text">Only 3 lbs from your 190 lb goal. You've come from 214 lbs — that's 21 lbs down. Stay consistent!</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Between-session reminders</div>
+      <div class="toggle-row">
+        <div><div class="toggle-label">Workout suggestions on off days</div><div class="toggle-sub">Get cardio and recovery tips from Monica's AI</div></div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div style="font-size:12px;color:#aaa;margin-top:10px;">Turn this off anytime if you don't want reminders.</div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="ccontent-history">
+    <div style="font-size:13px;color:#888;margin-bottom:14px;">Every session on record — scroll to see your full journey.</div>
+    <div class="scroll-list" id="client-history-list"></div>
+  </div>
+</div>
+
+</div>
+<script>
+const TRAINER_PASS='monica1945';
+let clients=['nelson'];
+let clientProfiles={nelson:{name:'Nelson',goal:'Weight loss',style:'Data-focused',equipment:'Speediance touch screen · Blocks weight system',notes:'Left side weaker on pallof press',reminders:'trainer'}};
+const NELSON_HISTORY=[
+  {date:'5/21/26',snum:14,exercises:[{name:'Donkey kicks',sets:'2',reps:'20-30',weight:'45'},{name:'Hamstring curls',sets:'1',reps:'20',weight:'22'},{name:'Air squats',sets:'1',reps:'52/min',weight:''},{name:'Knee extension',sets:'1',reps:'20',weight:'20'},{name:'Inner thigh',sets:'1',reps:'12',weight:'35'},{name:'Side raises',sets:'2',reps:'17-20',weight:'15'},{name:'Ab ups machine',sets:'1',reps:'30',weight:''}],notes:''},
+  {date:'5/19/26',snum:13,exercises:[{name:'Chest press',sets:'1',reps:'22',weight:'70'},{name:'Paloffs',sets:'2',reps:'16',weight:'35'},{name:'Ab ups',sets:'1',reps:'20',weight:'50'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'},{name:'Chest press flat',sets:'1',reps:'15',weight:'70'}],notes:'Left side on paloff weaker'},
+  {date:'5/15/26',snum:12,exercises:[{name:'Rows machine',sets:'2',reps:'30-17',weight:'30-45'},{name:'Bent over rows',sets:'1',reps:'20',weight:'40'},{name:'Pull-ups',sets:'1',reps:'',weight:''},{name:'Squats wide',sets:'1',reps:'20',weight:'100'},{name:'Paloffs',sets:'1',reps:'20',weight:'20'}],notes:'Golf and back workout'},
+  {date:'5/12/26',snum:11,exercises:[{name:'Chest press',sets:'3',reps:'19-8-9',weight:'70'},{name:'Incline chest',sets:'2',reps:'8-14',weight:'55-60'},{name:'Decline chest',sets:'2',reps:'12-10',weight:'70'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'},{name:'Overhead press',sets:'1',reps:'12',weight:'40'}],notes:''},
+  {date:'5/7/26',snum:10,exercises:[{name:'Chest press',sets:'1',reps:'21',weight:'70'},{name:'Paloffs',sets:'3',reps:'20',weight:'25-35'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Squats',sets:'1',reps:'31',weight:'180'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'}],notes:''},
+  {date:'5/5/26',snum:9,exercises:[{name:'Air squats',sets:'1',reps:'37/min',weight:''},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Burpees',sets:'1',reps:'13/min',weight:''},{name:'Donkey kicks',sets:'1',reps:'28',weight:'40'},{name:'Overhead press',sets:'1',reps:'21',weight:'35'}],notes:''},
+  {date:'5/1/26',snum:8,exercises:[{name:'Chest press',sets:'1',reps:'18',weight:'70'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'},{name:'Ball plank',sets:'1',reps:'1 min',weight:''}],notes:''},
+  {date:'4/16/26',snum:7,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'40'},{name:'Overhead press',sets:'1',reps:'24',weight:'35'},{name:'Jumping jacks',sets:'1',reps:'71',weight:'10'}],notes:''},
+  {date:'4/9/26',snum:5,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'40'},{name:'Hamstring curls',sets:'1',reps:'20',weight:'22'},{name:'Overhead press',sets:'1',reps:'21',weight:'35'}],notes:''},
+  {date:'4/2/26',snum:3,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'23',weight:'40'},{name:'Hamstring curls',sets:'1',reps:'20',weight:'22'},{name:'Overhead press',sets:'1',reps:'',weight:'35'}],notes:''},
+  {date:'3/27/26',snum:1,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'35'},{name:'Hamstring curls',sets:'1',reps:'19',weight:'22'},{name:'Overhead press',sets:'1',reps:'',weight:'35'}],notes:'Session 1 of new package'},
+  {date:'12/30/25',snum:21,exercises:[{name:'Pull-ups',sets:'1',reps:'30',weight:''},{name:'Bar squats',sets:'1',reps:'20',weight:'180'},{name:'Chest press',sets:'2',reps:'13-9',weight:'65'},{name:'Bicep curls',sets:'1',reps:'16',weight:'30'}],notes:''},
+  {date:'12/16/25',snum:19,exercises:[{name:'Run',sets:'1',reps:'7:24',weight:''},{name:'Pull-ups',sets:'1',reps:'30',weight:''},{name:'Bar squats',sets:'1',reps:'10',weight:'200'},{name:'Chest press',sets:'2',reps:'18-9',weight:'65'}],notes:''},
+  {date:'11/24/25',snum:15,exercises:[{name:'Run/air squats/burpees',sets:'1',reps:'',weight:''},{name:'Pull-ups',sets:'2',reps:'28-10',weight:''},{name:'Chest press',sets:'2',reps:'14-9',weight:'65'},{name:'Overhead press',sets:'1',reps:'13',weight:'40'}],notes:''},
+  {date:'9/23/25',snum:1,exercises:[{name:'Pull-ups',sets:'2',reps:'17-19',weight:''},{name:'Dips',sets:'2',reps:'14-15',weight:''},{name:'Push-ups with vest',sets:'2',reps:'17-12',weight:''},{name:'Squats with vest',sets:'1',reps:'32',weight:''}],notes:'Session 1 · First package 2025'},
+];
+let newSessions=[];
+let logExId=0;
+let logExIds=[];
+let chartBuilt=false;
+document.getElementById('log-date').value=new Date().toISOString().split('T')[0];
+function trainerLogin(){
+  if(document.getElementById('trainer-pass').value===TRAINER_PASS){show('screen-trainer');renderTrainerHistory();renderClientRoster();}
+  else{document.getElementById('trainer-err').style.display='block';}
+}
+function clientLogin(){
+  const n=document.getElementById('client-name-in').value.trim().toLowerCase();
+  if(clients.includes(n)){
+    const d=n.charAt(0).toUpperCase()+n.slice(1);
+    document.getElementById('client-nav-sub').textContent=d+"'s dashboard";
+    document.getElementById('client-welcome').textContent="Welcome back, "+d+"! Here's your latest progress. Tap 'Full history' to see every session.";
+    show('screen-client');renderClientHistory();
+    if(!chartBuilt){buildChart();chartBuilt=true;}
+  }else{document.getElementById('client-err').style.display='block';}
+}
+function logout(){document.getElementById('trainer-pass').value='';document.getElementById('client-name-in').value='';document.getElementById('trainer-err').style.display='none';document.getElementById('client-err').style.display='none';show('screen-login');}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function trainerTab(t){document.querySelectorAll('[id^="ttab-"]').forEach(el=>el.classList.remove('active'));document.querySelectorAll('[id^="tcontent-"]').forEach(el=>el.classList.remove('active'));document.getElementById('ttab-'+t).classList.add('active');document.getElementById('tcontent-'+t).classList.add('active');}
+function clientTab(t){document.querySelectorAll('[id^="ctab-"]').forEach(el=>el.classList.remove('active'));document.querySelectorAll('[id^="ccontent-"]').forEach(el=>el.classList.remove('active'));document.getElementById('ctab-'+t).classList.add('active');document.getElementById('ccontent-'+t).classList.add('active');}
+function addLogEx(name='',sets='',reps='',weight=''){
+  const id=++logExId;logExIds.push(id);
+  const d=document.createElement('div');d.className='ex-card';d.id='lex-'+id;
+  d.innerHTML=`<input class="ex-name-in" type="text" placeholder="Exercise name" value="${name}" id="ln-${id}"/>
+  <div class="ex-grid"><div><div class="ex-glabel">Sets</div><input type="text" id="ls-${id}" value="${sets}" placeholder="3"/></div><div><div class="ex-glabel">Reps</div><input type="text" id="lr-${id}" value="${reps}" placeholder="12"/></div><div><div class="ex-glabel">Lbs</div><input type="text" id="lw-${id}" value="${weight}" placeholder="70"/></div></div>
+  <button class="remove-btn" onclick="rmLogEx(${id})">✕ Remove</button>`;
+  document.getElementById('log-ex-list').appendChild(d);
+}
+function rmLogEx(id){const el=document.getElementById('lex-'+id);if(el)el.remove();logExIds=logExIds.filter(e=>e!==id);}
+function saveLog(){
+  const client=document.getElementById('log-client').value;
+  if(!client){alert('Please select a client.');return;}
+  const snum=document.getElementById('log-snum').value;
+  const date=document.getElementById('log-date').value;
+  const exs=logExIds.map(id=>({name:document.getElementById('ln-'+id)?.value||'',sets:document.getElementById('ls-'+id)?.value||'',reps:document.getElementById('lr-'+id)?.value||'',weight:document.getElementById('lw-'+id)?.value||''})).filter(e=>e.name);
+  const notes=document.getElementById('log-notes').value;
+  const d=date?new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'}):date;
+  newSessions.unshift({date:d,snum,exercises:exs,notes,client});
+  document.getElementById('log-success-msg').textContent=`Session ${snum||''} for ${client.charAt(0).toUpperCase()+client.slice(1)} saved!`;
+  const banner=document.getElementById('log-success');banner.style.display='flex';setTimeout(()=>banner.style.display='none',3000);
+  document.getElementById('log-ex-list').innerHTML='';logExIds=[];document.getElementById('log-snum').value='';document.getElementById('log-notes').value='';
+  renderTrainerHistory();
+}
+function renderTrainerHistory(){
+  const el=document.getElementById('trainer-history-list');
+  const c=document.getElementById('hist-client-select')?.value||'nelson';
+  const all=[...newSessions.filter(s=>s.client===c),...NELSON_HISTORY];
+  el.innerHTML=all.map(s=>`<div class="session-row"><div><div class="session-date">${s.date}</div><div class="session-detail">${s.exercises.slice(0,3).map(e=>e.name).join(', ')}${s.exercises.length>3?' + '+(s.exercises.length-3)+' more':''}</div>${s.notes?`<div class="session-notes">${s.notes}</div>`:''}</div><span class="badge badge-info">S${s.snum||'?'}</span></div>`).join('');
+}
+function renderClientHistory(){
+  const el=document.getElementById('client-history-list');
+  const all=[...newSessions.filter(s=>s.client==='nelson'),...NELSON_HISTORY];
+  el.innerHTML=all.map(s=>`<div class="history-card"><div class="history-card-header"><div style="font-size:14px;font-weight:700;">${s.date}</div><span class="badge badge-info">Session ${s.snum||'?'}</span></div>${s.exercises.map(e=>`<div class="history-ex-row"><span class="history-ex-name">${e.name}</span><span class="history-ex-val">${[e.sets?e.sets+' sets':'',e.reps?e.reps+' reps':'',e.weight?e.weight+' lbs':''].filter(Boolean).join(' · ')}</span></div>`).join('')}${s.notes?`<div style="font-size:12px;color:#aaa;margin-top:8px;font-style:italic;">${s.notes}</div>`:''}</div>`).join('');
+}
+function renderClientRoster(){
+  const el=document.getElementById('client-roster');
+  el.innerHTML=clients.map(c=>{const p=clientProfiles[c]||{};return `<div class="profile-field"><div class="profile-icon">👤</div><div><div class="profile-label">${p.name||c}</div><div style="font-size:12px;color:#888;">${p.goal||''} · ${p.style||''}</div><div style="font-size:11px;color:#aaa;margin-top:2px;">${p.equipment||''}</div></div></div>`;}).join('');
+}
+function showAddClient(){const f=document.getElementById('add-client-form');f.style.display=f.style.display==='none'?'block':'none';}
+function saveNewClient(){
+  const name=document.getElementById('new-client-name').value.trim();
+  if(!name){alert('Please enter a client name.');return;}
+  const key=name.toLowerCase();clients.push(key);
+  clientProfiles[key]={name,goal:document.getElementById('new-client-goal').value,style:document.getElementById('new-client-style').value,equipment:document.getElementById('new-client-equipment').value,notes:document.getElementById('new-client-physnotes').value,reminders:document.getElementById('new-client-reminders').value};
+  const sel=document.getElementById('log-client');const opt=document.createElement('option');opt.value=key;opt.textContent=name;sel.appendChild(opt);
+  const sel2=document.getElementById('hist-client-select');const opt2=document.createElement('option');opt2.value=key;opt2.textContent=name;sel2.appendChild(opt2);
+  document.getElementById('add-client-form').style.display='none';document.getElementById('new-client-name').value='';
+  renderClientRoster();alert(name+' added successfully!');
+}
+function buildChart(){
+  new Chart(document.getElementById('cc1'),{type:'line',data:{labels:['S8 (5/1)','S10 (5/7)','S11 (5/12)','S13 (5/19)'],datasets:[{label:'Reps at 70 lbs',data:[18,21,19,22],borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.08)',tension:0.3,fill:true,pointBackgroundColor:'#185FA5',pointRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:14,max:26,ticks:{stepSize:2,color:'#888'},grid:{color:'rgba(0,0,0,0.05)'}},x:{ticks:{color:'#888',font:{size:11}},grid:{display:false}}}}});
+}
+document.getElementById('trainer-pass').addEventListener('keydown',e=>{if(e.key==='Enter')trainerLogin();});
+document.getElementById('client-name-in').addEventListener('keydown',e=>{if(e.key==='Enter')clientLogin();});
+</script>
+</body>
+</html>
