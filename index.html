@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,12 +22,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-primary{width:100%;padding:13px;font-size:15px;font-weight:600;cursor:pointer;background:#185FA5;color:#fff;border:none;border-radius:12px;margin-top:4px;}
 .btn-primary.green{background:#0F6E56;}
 .btn-primary.red{background:#c0392b;}
+.btn-primary.orange{background:#E67E22;}
 .btn-sec{width:100%;padding:10px;font-size:14px;cursor:pointer;background:#fff;border:1px solid #ddd;border-radius:10px;color:#185FA5;font-weight:500;margin-top:8px;}
 .btn-small{padding:6px 12px;font-size:13px;cursor:pointer;background:#185FA5;color:#fff;border:none;border-radius:8px;white-space:nowrap;}
 .btn-small.green{background:#0F6E56;}
 .btn-small.red{background:#c0392b;}
 .btn-small.gray{background:#888;}
-.btn-small.outline{background:#fff;color:#185FA5;border:1px solid #185FA5;}
+.btn-small.orange{background:#E67E22;}
 .err{font-size:12px;color:#c0392b;margin-top:6px;display:none;padding:8px 12px;background:#fdf0f0;border-radius:8px;}
 .help-tip{background:#f0f4ff;border-radius:10px;padding:10px 14px;font-size:12px;color:#555;margin-bottom:12px;line-height:1.5;}
 .nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:12px;border-bottom:1px solid #eee;}
@@ -81,11 +81,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .copy-row{display:flex;gap:8px;align-items:center;}
 .copy-row input{flex:1;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;}
 .current-ex-card{background:#185FA5;border-radius:16px;padding:1.25rem;margin-bottom:10px;color:#fff;}
-.current-ex-label{font-size:11px;font-weight:600;opacity:0.7;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
-.current-ex-name{font-size:20px;font-weight:700;margin-bottom:8px;}
+.current-ex-label{font-size:11px;font-weight:600;opacity:0.7;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.current-ex-name-input{width:100%;padding:10px 12px;border:none;border-radius:10px;font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:8px;background:#fff;}
 .current-ex-prev{font-size:12px;opacity:0.85;margin-bottom:12px;background:rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;}
 .current-ex-label-small{font-size:11px;text-align:center;color:rgba(255,255,255,0.8);margin-bottom:4px;}
-.done-btn{width:100%;padding:12px;font-size:15px;font-weight:600;cursor:pointer;background:#fff;color:#185FA5;border:none;border-radius:12px;margin-top:4px;}
+.ex-action-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.done-btn{width:100%;padding:11px;font-size:14px;font-weight:600;cursor:pointer;background:#fff;color:#185FA5;border:none;border-radius:12px;}
+.skip-btn{width:100%;padding:11px;font-size:14px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:12px;}
 .next-ex-card{background:#e8f0ff;border-radius:12px;padding:12px;margin-bottom:1rem;display:flex;align-items:center;gap:10px;}
 .next-ex-label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;}
 .next-ex-name{font-size:14px;font-weight:600;color:#185FA5;}
@@ -93,6 +95,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ex-list-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;}
 .ex-list-item:last-child{border-bottom:none;}
 .ex-list-item.done{opacity:0.5;}
+.ex-list-item.skipped{opacity:0.4;text-decoration:line-through;}
 .ex-list-item.active{font-weight:600;}
 .ex-name-col{font-size:13px;color:#333;flex:1;}
 .ex-stats-col{font-size:12px;color:#185FA5;font-weight:500;margin-left:8px;}
@@ -133,6 +136,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .wj-date{font-size:12px;color:#888;}
 .wj-weight{font-size:13px;font-weight:600;color:#185FA5;}
 .wj-change{font-size:11px;color:#0F6E56;font-weight:500;}
+.partner-section{background:#f0fff4;border:1px solid #a5d6a7;border-radius:12px;padding:12px;margin-bottom:1rem;}
+.partner-title{font-size:13px;font-weight:600;color:#0F6E56;margin-bottom:8px;}
+.cardio-log-box{background:#f0f4ff;border:1px solid #c0d4f5;border-radius:12px;padding:14px;margin-bottom:1rem;}
+.cardio-title{font-size:13px;font-weight:600;color:#185FA5;margin-bottom:4px;}
+.cardio-subtitle{font-size:11px;color:#666;margin-bottom:10px;line-height:1.5;}
+.cardio-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.cardio-grid .field{margin-bottom:0;}
 </style>
 </head>
 <body>
@@ -181,30 +191,50 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="field" style="margin-bottom:0"><label>Session # (auto)</label><input type="text" id="log-snum" placeholder="—" /></div>
         <div class="field" style="margin-bottom:0"><label>Date</label><input type="date" id="log-date" /></div>
       </div>
-      <div class="field" style="margin-bottom:0"><label>Log weight today (lbs)</label>
+      <div class="field" style="margin-bottom:8px;"><label>Log weight today (lbs)</label>
         <div style="display:flex;gap:8px;">
           <input type="text" id="log-weight" placeholder="e.g. 225" style="flex:1;" />
           <button class="btn-small" onclick="saveWeight()">Save weight</button>
         </div>
       </div>
+      <div id="partner-toggle-row">
+        <button class="btn-sec" onclick="togglePartner()" id="partner-toggle-btn" style="margin-top:0;">+ Add partner client to this session</button>
+      </div>
+      <div id="partner-section" style="display:none;margin-top:10px;">
+        <div class="partner-section">
+          <div class="partner-title">👥 Partner session</div>
+          <div class="field" style="margin-bottom:8px;"><label>Partner client</label>
+            <select id="partner-client"><option value="">Select partner...</option></select>
+          </div>
+          <div class="field" style="margin-bottom:0;"><label>Partner session #</label>
+            <input type="text" id="partner-snum" placeholder="Auto-fills when selected" />
+          </div>
+        </div>
+      </div>
     </div>
+
     <div class="copy-session-box">
       <div class="copy-title">📋 Start from a previous session?</div>
-      <p style="font-size:12px;color:#666;margin-bottom:8px;">Enter any session number to load that workout. Update reps/weights as you go.</p>
+      <p style="font-size:12px;color:#666;margin-bottom:8px;">Enter any session number to load that workout. You can edit exercise names, update reps/weights, skip or add exercises as you go.</p>
       <div class="copy-row">
         <input type="text" id="copy-snum" placeholder="Session number (e.g. 14)" />
         <button class="btn-small" onclick="loadPreviousSession()">Load</button>
       </div>
       <div id="copy-err" style="font-size:12px;color:#c0392b;margin-top:6px;display:none;">Session not found. Try another number.</div>
     </div>
+
     <div id="no-session-yet" class="help-tip" style="display:none;">
       Load a previous session above, or <span style="color:#185FA5;cursor:pointer;font-weight:600;" onclick="startBlankSession()">start a blank session →</span>
     </div>
+
     <div id="workout-logger" style="display:none;">
       <div id="current-ex-container"></div>
       <div id="next-ex-container"></div>
       <div class="card">
-        <div class="section-title">All exercises <span id="ex-progress" style="color:#185FA5;font-size:12px;"></span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div class="section-title" style="margin-bottom:0;">All exercises <span id="ex-progress" style="color:#185FA5;font-size:12px;"></span></div>
+          <button class="btn-small green" style="font-size:12px;padding:5px 10px;" onclick="addExerciseMidSession()">+ Add exercise</button>
+        </div>
         <div id="ex-checklist"></div>
       </div>
       <div class="field"><label>Session notes</label><textarea id="log-notes" placeholder="e.g. Great energy today, left shoulder still tight..."></textarea></div>
@@ -220,15 +250,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="section-title" style="margin-bottom:12px;">New client details</div>
       <div class="field"><label>Client name *</label><input type="text" id="new-name" placeholder="e.g. Sarah" /></div>
       <div class="field"><label>Login code * (you create this)</label><input type="text" id="new-code" placeholder="e.g. SAR2026" /></div>
-      <div class="field"><label>Current weight (lbs)</label><input type="text" id="new-weight" placeholder="e.g. 180" /></div>
-      <div class="field"><label>Goal weight (lbs)</label><input type="text" id="new-goalwt" placeholder="e.g. 160" /></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="field"><label>Current weight (lbs)</label><input type="text" id="new-weight" placeholder="e.g. 180" /></div>
+        <div class="field"><label>Goal weight (lbs)</label><input type="text" id="new-goalwt" placeholder="e.g. 160" /></div>
+      </div>
       <div class="field"><label>Goal</label><input type="text" id="new-goal" placeholder="e.g. Lose weight, build strength" /></div>
-      <div class="field"><label>Training style</label><input type="text" id="new-style" placeholder="e.g. Data-focused, just wants to show up" /></div>
-      <div class="field"><label>Equipment</label><input type="text" id="new-equip" placeholder="e.g. Speediance, free weights, vest" /></div>
+      <div class="field"><label>Training style</label><input type="text" id="new-style" placeholder="e.g. Data-focused, casual" /></div>
+      <div class="field"><label>Equipment</label><input type="text" id="new-equip" placeholder="e.g. Speediance, free weights" /></div>
       <div class="field"><label>Physical notes</label><input type="text" id="new-phys" placeholder="e.g. Bad left knee, watch shoulders" /></div>
-      <div class="field">
-        <label>Paste Google Doc / notes history (optional — trainer eyes only)</label>
-        <textarea id="new-history" style="min-height:100px;" placeholder="Copy and paste their workout notes here. The app will import their session history automatically."></textarea>
+      <div class="field"><label>Paste Google Doc history (optional — trainer eyes only)</label>
+        <textarea id="new-history" style="min-height:100px;" placeholder="Copy and paste their workout notes here."></textarea>
       </div>
       <button class="btn-primary" onclick="saveNewClient()" style="margin-bottom:8px;">Save new client</button>
       <button class="btn-sec" onclick="toggleAddClient()">Cancel</button>
@@ -263,6 +294,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
   <div class="tab-content active" id="ccontent-overview">
     <div id="client-overview-content"></div>
+    <div class="cardio-log-box">
+      <div class="cardio-title">📱 Log your own activity</div>
+      <div class="cardio-subtitle">Manually enter info from your Apple Watch, Strava, or any fitness app. This is NOT automatically synced — just enter it yourself and it will appear in your notes for Monica to see.</div>
+      <div class="field" style="margin-bottom:8px;"><label>Date of activity</label><input type="date" id="cardio-date" /></div>
+      <div class="cardio-grid">
+        <div class="field"><label>Activity type</label>
+          <select id="cardio-type">
+            <option value="">Select...</option>
+            <option>Run</option><option>Walk</option><option>Bike</option>
+            <option>Rowing machine</option><option>Treadmill</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field"><label>Duration (mins)</label><input type="text" id="cardio-duration" placeholder="e.g. 30" /></div>
+      </div>
+      <div class="cardio-grid">
+        <div class="field"><label>Distance (miles)</label><input type="text" id="cardio-distance" placeholder="e.g. 2.5" /></div>
+        <div class="field"><label>Avg heart rate (bpm)</label><input type="text" id="cardio-hr" placeholder="e.g. 142" /></div>
+      </div>
+      <div class="cardio-grid">
+        <div class="field"><label>Calories (optional)</label><input type="text" id="cardio-cal" placeholder="e.g. 320" /></div>
+        <div class="field"><label>Strava link/note (optional)</label><input type="text" id="cardio-strava" placeholder="e.g. Morning run" /></div>
+      </div>
+      <button class="btn-primary" onclick="saveCardio()" style="margin-top:4px;">Save activity log</button>
+      <div class="success-banner" id="cardio-success">✓ Activity logged! Monica can now see it.</div>
+    </div>
   </div>
   <div class="tab-content" id="ccontent-history">
     <div class="help-tip" style="margin-bottom:1rem;">Tap any session to see every exercise with full details.</div>
@@ -293,495 +349,455 @@ let clientDB = {
     goal:'Reach 200 lbs, build muscle, improve HIIT performance',
     style:'Data-focused, motivated by numbers. Golf player — include rotation and core work.',
     equipment:'Speediance touchscreen cable system, Blocks free weights, weighted vest',
-    physNotes:'Left side weaker on pallof press — extra reps left side. Left shoulder — do conditioning exercises. Start left foot on side raises and inner thigh.',
-    currentWeight:225, goalWeight:200, startWeight:214,
-    sinceDate:'Sep 2023',
+    physNotes:'Left side weaker on pallof press — extra reps left side. Left shoulder — do conditioning. Start left foot on side raises and inner thigh.',
+    currentWeight:225, goalWeight:200, startWeight:214, sinceDate:'Sep 2023',
     reminders:[
       {icon:'🏋️',color:'orange',title:'Shoulder conditioning',text:"Don't forget your shoulder conditioning — stronger shoulders mean stronger workouts!"},
       {icon:'⛳',color:'blue',title:'Golf performance',text:'Your rotation and core exercises directly improve your golf swing. Keep it up!'},
       {icon:'🧍',color:'green',title:'Posture reminder',text:'Good posture during all exercises — especially pallof press and rows.'},
       {icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight so she can help keep you on track!"}
     ],
-    weightHistory:[
-      {date:'Feb 2025',weight:214},{date:'May 2026',weight:225}
-    ],
+    weightHistory:[{date:'Feb 2025',weight:214},{date:'May 2026',weight:225}],
     sessions:[
       {date:'5/26/26',snum:15,exercises:[{name:'Chest press (Speediance)',sets:'1',reps:'23',weight:'70'},{name:'Paloffs',sets:'2',reps:'20',weight:'35',note:'Extra reps left side'},{name:'Ab ups',sets:'1',reps:'20',weight:'50'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Biceps machine',sets:'1',reps:'14',weight:'35'},{name:'Ab ups machine',sets:'2',reps:'20',weight:'20'},{name:'Tricep kickbacks machine',sets:'1',reps:'21',weight:'15'},{name:'Chest press flat bench',sets:'1',reps:'20',weight:'70'},{name:'Russian twists',sets:'1',reps:'40',weight:''},{name:'Squats machine (Speediance)',sets:'1',reps:'30',weight:'200',note:'Plus 20 eccentric'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'},{name:'Standing side raises (Blocks)',sets:'1',reps:'20',weight:'20'},{name:'Ab roller',sets:'1',reps:'20',weight:''},{name:'Chest press incline',sets:'2',reps:'12-20',weight:'70-65'}],notes:'New chest press PR: 23 reps at 70 lbs'},
-      {date:'5/21/26',snum:14,exercises:[{name:'Donkey kicks (Speediance)',sets:'2',reps:'20-30',weight:'40-45'},{name:'Hamstring curls',sets:'1',reps:'20',weight:'22'},{name:'Air squats',sets:'1',reps:'52/min',weight:''},{name:'Knee extension sitting up',sets:'1',reps:'20',weight:'20',note:'Bench elevated'},{name:'Burpees',sets:'1',reps:'10',weight:''},{name:'Inner thigh',sets:'1',reps:'12',weight:'35'},{name:'Outer thigh',sets:'1',reps:'12',weight:'35'},{name:'Side raises',sets:'2',reps:'17-20',weight:'15'},{name:'Ab ups machine',sets:'1',reps:'30',weight:''}],notes:'Air squats 52/min — personal best!'},
-      {date:'5/19/26',snum:13,exercises:[{name:'Chest press',sets:'1',reps:'22',weight:'70'},{name:'Paloffs',sets:'2',reps:'16',weight:'35'},{name:'Ab ups',sets:'1',reps:'20',weight:'50'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Biceps machine',sets:'1',reps:'12',weight:'35'},{name:'Chest press flat bench',sets:'1',reps:'15',weight:'70'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'},{name:'Standing side raises',sets:'2',reps:'20-23',weight:'20'},{name:'Ball crunches',sets:'3',reps:'50',weight:''}],notes:'Left side on paloff weaker'},
-      {date:'5/15/26',snum:12,exercises:[{name:'Rows machine',sets:'2',reps:'30-17',weight:'30-45'},{name:'Bent over rows',sets:'1',reps:'20',weight:'40'},{name:'Pull-ups',sets:'1',reps:'',weight:''},{name:'Push-ups',sets:'1',reps:'22',weight:''},{name:'Golf swing mimics',sets:'1',reps:'20',weight:'20'},{name:'Bar swing',sets:'1',reps:'20',weight:'20'}],notes:'Golf and back workout'},
-      {date:'5/12/26',snum:11,exercises:[{name:'Chest press',sets:'3',reps:'19-8-9',weight:'70'},{name:'Incline chest press',sets:'2',reps:'8-14',weight:'55-60'},{name:'Decline chest press',sets:'2',reps:'12-10',weight:'70'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'},{name:'Overhead press',sets:'1',reps:'12',weight:'40'}],notes:''},
-      {date:'5/7/26',snum:10,exercises:[{name:'Chest press',sets:'1',reps:'21',weight:'70'},{name:'Paloffs',sets:'3',reps:'20',weight:'25-35'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Squats',sets:'1',reps:'31',weight:'180'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'}],notes:''},
-      {date:'5/5/26',snum:9,exercises:[{name:'Air squats',sets:'1',reps:'37/min',weight:''},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'28',weight:'40'},{name:'Overhead press',sets:'1',reps:'21',weight:'35'}],notes:''},
-      {date:'5/1/26',snum:8,exercises:[{name:'Chest press',sets:'1',reps:'18',weight:'70'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'}],notes:''},
-      {date:'4/16/26',snum:7,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'40'},{name:'Overhead press',sets:'1',reps:'24',weight:'35'}],notes:''},
-      {date:'4/9/26',snum:5,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'40'},{name:'Overhead press',sets:'1',reps:'21',weight:'35'}],notes:''},
-      {date:'4/2/26',snum:3,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'23',weight:'40'}],notes:''},
-      {date:'3/31/26',snum:2,exercises:[{name:'Chest press decline',sets:'1',reps:'20',weight:'65'},{name:'Pull-ups',sets:'2',reps:'30-19',weight:''},{name:'Squats',sets:'1',reps:'30',weight:'210'},{name:'Plank',sets:'1',reps:'3 min',weight:''}],notes:''},
-      {date:'3/27/26',snum:1,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'35'},{name:'Overhead press',sets:'1',reps:'',weight:'35'}],notes:'Session 1 of new package'}
+      {date:'5/21/26',snum:14,exercises:[{name:'Donkey kicks (Speediance)',sets:'2',reps:'20-30',weight:'40-45'},{name:'Hamstring curls',sets:'1',reps:'20',weight:'22'},{name:'Air squats',sets:'1',reps:'52/min',weight:''},{name:'Knee extension sitting up',sets:'1',reps:'20',weight:'20',note:'Bench elevated'},{name:'Burpees',sets:'1',reps:'10',weight:''},{name:'Knee ext lying down',sets:'2',reps:'23-12',weight:'17'},{name:'Inner thigh',sets:'1',reps:'12',weight:'35'},{name:'Outer thigh',sets:'1',reps:'12',weight:'35'},{name:'Side raises',sets:'2',reps:'17-20',weight:'15'},{name:'Ab ups machine',sets:'1',reps:'30',weight:''}],notes:'Air squats 52/min — personal best!'},
+      {date:'5/19/26',snum:13,exercises:[{name:'Chest press',sets:'1',reps:'22',weight:'70'},{name:'Paloffs',sets:'2',reps:'16',weight:'35'},{name:'Ab ups',sets:'1',reps:'20',weight:'50'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Biceps machine',sets:'1',reps:'12',weight:'35'},{name:'Tricep kickbacks machine',sets:'1',reps:'',weight:'15'},{name:'Chest press flat bench',sets:'1',reps:'15',weight:'70'},{name:'Russian twists',sets:'1',reps:'40',weight:''},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'},{name:'Standing side raises',sets:'2',reps:'20-23',weight:'20'},{name:'Ball crunches',sets:'3',reps:'50',weight:''}],notes:'Left side on paloff weaker'},
+      {date:'5/15/26',snum:12,exercises:[{name:'Rows machine',sets:'2',reps:'30-17',weight:'30-45'},{name:'Ab ups',sets:'1',reps:'',weight:''},{name:'Bent over one side rows',sets:'1',reps:'20',weight:'40'},{name:'Back flys',sets:'1',reps:'',weight:''},{name:'Pull-ups',sets:'1',reps:'',weight:''},{name:'Lunges one side',sets:'1',reps:'',weight:'50'},{name:'Push-ups',sets:'1',reps:'22',weight:''},{name:'Squats wide vest+weight',sets:'1',reps:'20',weight:'100'},{name:'Paloffs',sets:'1',reps:'20',weight:'20',note:'Grip further from body'},{name:'Golf swing mimics',sets:'1',reps:'20',weight:'20'},{name:'Bar swing',sets:'1',reps:'20',weight:'20'}],notes:'Golf and back workout'},
+      {date:'5/12/26',snum:11,exercises:[{name:'Chest press',sets:'3',reps:'19-8-9',weight:'70'},{name:'Knee ups on machine',sets:'2',reps:'30',weight:''},{name:'Incline chest press',sets:'2',reps:'8-14',weight:'55-60'},{name:'Decline chest press',sets:'2',reps:'12-10',weight:'70'},{name:'Ab twists on machine',sets:'1',reps:'',weight:''},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'},{name:'Bicep/forearm curls',sets:'1',reps:'12',weight:'25'},{name:'Overhead press',sets:'1',reps:'12',weight:'40'}],notes:''},
+      {date:'5/7/26',snum:10,exercises:[{name:'Chest press',sets:'1',reps:'21',weight:'70'},{name:'Paloffs',sets:'3',reps:'20',weight:'25-35'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Crunches on Bosu',sets:'1',reps:'',weight:''},{name:'Biceps machine',sets:'2',reps:'12-6',weight:'30-35'},{name:'Russian twists',sets:'1',reps:'40',weight:''},{name:'Chest press flat bench',sets:'1',reps:'17',weight:'70'},{name:'Squats',sets:'1',reps:'31',weight:'180'},{name:'Chest press',sets:'1',reps:'20',weight:'65'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'},{name:'Standing side raises',sets:'1',reps:'20',weight:'20'},{name:'Facedown flys',sets:'2',reps:'21',weight:'16'},{name:'Ball crunches',sets:'3',reps:'50',weight:''}],notes:''},
+      {date:'5/5/26',snum:9,exercises:[{name:'Air squats',sets:'1',reps:'37/min',weight:''},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Burpees',sets:'1',reps:'13/min',weight:''},{name:'Ab ups',sets:'1',reps:'10',weight:'50'},{name:'Push-ups',sets:'1',reps:'22',weight:''},{name:'Donkey kicks',sets:'1',reps:'28',weight:'40'},{name:'Hamstring curls',sets:'1',reps:'19',weight:'22'},{name:'Knee extension sitting up',sets:'1',reps:'25',weight:'27'},{name:'Knee ext lying down',sets:'2',reps:'23-12',weight:'17'},{name:'Inner thigh',sets:'1',reps:'19',weight:'30'},{name:'Outer thigh',sets:'1',reps:'30',weight:'30'},{name:'Overhead press',sets:'1',reps:'21',weight:'35'}],notes:''},
+      {date:'5/1/26',snum:8,exercises:[{name:'Chest press',sets:'1',reps:'18',weight:'70'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Crunches on ball',sets:'1',reps:'50',weight:''},{name:'Biceps machine',sets:'2',reps:'10-4',weight:'30-35'},{name:'Russian twists',sets:'1',reps:'40',weight:''},{name:'Chest press flat bench',sets:'1',reps:'17',weight:'70'},{name:'Ball plank',sets:'1',reps:'1 min',weight:''},{name:'Bird dipper',sets:'1',reps:'20',weight:'50'},{name:'Standing side raises',sets:'1',reps:'20',weight:'20'},{name:'Facedown flys',sets:'2',reps:'21',weight:'16'},{name:'Ball crunches',sets:'3',reps:'50',weight:''}],notes:''},
+      {date:'4/16/26',snum:7,exercises:[{name:'Air squats',sets:'1',reps:'',weight:''},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Burpees',sets:'1',reps:'',weight:''},{name:'Ab ups',sets:'5',reps:'10',weight:'50'},{name:'Donkey kicks',sets:'1',reps:'25',weight:'40'},{name:'Hamstring curls',sets:'1',reps:'21',weight:'22'},{name:'Knee extension sitting up',sets:'1',reps:'25',weight:'25'},{name:'Knee ext lying down',sets:'1',reps:'23',weight:'17'},{name:'Inner thigh',sets:'1',reps:'17',weight:'30'},{name:'Outer thigh',sets:'1',reps:'30',weight:'30'},{name:'Overhead press',sets:'1',reps:'24',weight:'35'},{name:'Jumping jacks with weights',sets:'1',reps:'71',weight:'10'}],notes:''},
+      {date:'4/9/26',snum:5,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'40'},{name:'Hamstring curls',sets:'1',reps:'20',weight:'22'},{name:'Overhead press',sets:'1',reps:'21',weight:'35'}],notes:''},
+      {date:'4/2/26',snum:3,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'23',weight:'40'},{name:'Overhead press',sets:'1',reps:'',weight:'35'}],notes:''},
+      {date:'3/31/26',snum:2,exercises:[{name:'Chest press decline',sets:'1',reps:'20',weight:'65'},{name:'Pull-ups',sets:'2',reps:'30-19',weight:''},{name:'Squats',sets:'1',reps:'30',weight:'210'},{name:'Plank',sets:'1',reps:'3 min',weight:''},{name:'Bird dippers',sets:'1',reps:'20',weight:'40'}],notes:''},
+      {date:'3/27/26',snum:1,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'35'},{name:'Hamstring curls',sets:'1',reps:'19',weight:'22'},{name:'Overhead press',sets:'1',reps:'',weight:'35'}],notes:'Session 1 of new package'}
     ]
   },
   bob: {
     name:'Bob B.', code:'bobbr101',
-    goal:'Improve cardiorespiratory health, healthy weight loss, strong biceps',
-    style:'Steady and consistent. Works well with encouragement. Does counter pushups on his own between sessions.',
-    equipment:'Treadmill, leg press machine, free weights',
-    physNotes:'Started above 500 lbs. Needs to hydrate often. Recommend stretching 30 seconds after leg press. Watch body position on upright bar pushups — straighter body at high bar level. Mounjaro started July 2025.',
-    currentWeight:358, goalWeight:300, startWeight:500,
-    sinceDate:'Aug 2017',
+    goal:'Improve cardiorespiratory health, healthy weight loss, strong looking biceps',
+    style:'Steady and consistent. Works well with encouragement. Does counter pushups on own between sessions (150 total in sets).',
+    equipment:'Treadmill, leg press machine, free weights, upright bar',
+    physNotes:'Started above 500 lbs. Hydrate often. Stretch 30 sec after leg press. Watch body position on upright bar pushups — straighter body at high bar level. Started Mounjaro July 2025.',
+    currentWeight:358, goalWeight:300, startWeight:500, sinceDate:'Aug 2017',
     reminders:[
       {icon:'💧',color:'blue',title:'Hydrate!',text:'Remember to drink water regularly throughout your workout and during the day.'},
-      {icon:'🦵',color:'orange',title:'Post leg press stretch',text:'Stretch for 30 seconds after leg press — this helps with soreness and recovery.'},
+      {icon:'🦵',color:'orange',title:'Post leg press stretch',text:'Stretch for 30 seconds after leg press — helps with soreness and recovery.'},
       {icon:'🧍',color:'green',title:'Pushup form',text:'Keep a straighter body position on upright bar pushups. Quality over quantity!'},
       {icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight — tracking progress keeps you motivated!"},
-      {icon:'💪',color:'purple',title:'Home exercises',text:'Keep up those counter pushups on your own — 150 total in sets is great work!'}
+      {icon:'💪',color:'purple',title:'Home exercises',text:'Keep up those counter pushups — 150 total in sets is great work between sessions!'}
     ],
     weightHistory:[
-      {date:'Start (2017)',weight:'500+'},
-      {date:'Aug 2018',weight:390},
-      {date:'Sep 2021',weight:463},
-      {date:'Sep 2022',weight:405},
-      {date:'Sep 2024',weight:411},
-      {date:'Mar 2026',weight:391},
-      {date:'Mar 2026 (S5)',weight:375},
-      {date:'Apr 2026',weight:368},
-      {date:'Apr 2026 (S21)',weight:365},
-      {date:'May 2026 (S30)',weight:360},
-      {date:'May 2026 (S31)',weight:358}
+      {date:'Start (2017)',weight:'500+'},{date:'Aug 2018',weight:390},{date:'Sep 2021',weight:463},
+      {date:'Sep 2022',weight:405},{date:'Apr 2026 (S21)',weight:365},{date:'May 2026 (S30)',weight:360},{date:'May 2026 (S31)',weight:358}
     ],
     sessions:[
       {date:'5/27/26',snum:31,exercises:[{name:'Treadmill',sets:'1',reps:'4 min',weight:'',note:'1.5 mph 15% incline'},{name:'Leg press machine',sets:'6',reps:'10',weight:'310'},{name:'Upright bar pushups',sets:'2',reps:'15',weight:'',note:'Straighter body next time'}],notes:'Weight 358 lbs'},
-      {date:'5/25/26',snum:30,exercises:[{name:'Treadmill',sets:'1',reps:'4 min',weight:'',note:'1.5 mph 15% incline'},{name:'Leg press machine',sets:'6',reps:'15',weight:'220',note:'Slightly different position due to mild groin soreness from last week'}],notes:'Weight 360 lbs — first time back on leg press since last week'},
-      {date:'5/22/26',snum:29,exercises:[],notes:''},
-      {date:'5/20/26',snum:28,exercises:[{name:'Pushups',sets:'6',reps:'',weight:''},{name:'Leg press',sets:'1',reps:'15',weight:'220'}],notes:''},
-      {date:'5/18/26',snum:27,exercises:[],notes:''},
-      {date:'5/11/26',snum:26,exercises:[],notes:''},
+      {date:'5/25/26',snum:30,exercises:[{name:'Treadmill',sets:'1',reps:'4 min',weight:'',note:'1.5 mph 15% incline'},{name:'Leg press machine',sets:'6',reps:'15',weight:'220',note:'Slightly different position — mild groin soreness last week'}],notes:'Weight 360 lbs'},
+      {date:'5/22/26',snum:29,exercises:[],notes:''},{date:'5/20/26',snum:28,exercises:[{name:'Pushups',sets:'6',reps:'',weight:''},{name:'Leg press',sets:'1',reps:'15',weight:'220'}],notes:''},
+      {date:'5/18/26',snum:27,exercises:[],notes:''},{date:'5/11/26',snum:26,exercises:[],notes:''},
       {date:'5/8/26',snum:25,exercises:[{name:'Pushups',sets:'10',reps:'',weight:''},{name:'Squats',sets:'1',reps:'',weight:''}],notes:''},
       {date:'5/6/26',snum:24,exercises:[],notes:'Weight 368 lbs'},
-      {date:'5/4/26',snum:23,exercises:[{name:'Pushups',sets:'8',reps:'15',weight:''},{name:'Bicep curls',sets:'2',reps:'15',weight:'25',note:'Plus hammer curls'},{name:'Squats',sets:'',reps:'15',weight:''}],notes:''},
-      {date:'5/1/26',snum:22,exercises:[],notes:''},
-      {date:'4/29/26',snum:21,exercises:[],notes:'Weight 365 lbs'},
-      {date:'4/27/26',snum:20,exercises:[],notes:''},
-      {date:'4/24/26',snum:19,exercises:[{name:'Knee extensions',sets:'1',reps:'',weight:'',note:'Introduced knee extensions'}],notes:''},
+      {date:'5/4/26',snum:23,exercises:[{name:'Pushups',sets:'8',reps:'15',weight:''},{name:'Bicep curls',sets:'2',reps:'15',weight:'25',note:'Plus hammer curls'},{name:'Squats',sets:'1',reps:'15',weight:''}],notes:''},
+      {date:'5/1/26',snum:22,exercises:[],notes:''},{date:'4/29/26',snum:21,exercises:[],notes:'Weight 365 lbs'},
+      {date:'4/27/26',snum:20,exercises:[],notes:''},{date:'4/24/26',snum:19,exercises:[{name:'Knee extensions',sets:'1',reps:'',weight:'',note:'Introduced knee extensions'}],notes:''},
       {date:'4/22/26',snum:18,exercises:[],notes:''},
       {date:'4/22/26',snum:17,exercises:[{name:'Pushups from couch',sets:'4',reps:'15',weight:''},{name:'Hammer curls',sets:'7',reps:'',weight:''}],notes:'Sets of 15 pushups'},
-      {date:'4/20/26',snum:16,exercises:[],notes:''},
-      {date:'4/15/26',snum:15,exercises:[],notes:'Weight 370 lbs'},
-      {date:'4/13/26',snum:14,exercises:[],notes:''},
-      {date:'4/10/26',snum:13,exercises:[],notes:''},
-      {date:'4/8/26',snum:12,exercises:[],notes:'Weight 363 lbs'},
-      {date:'4/6/26',snum:11,exercises:[],notes:''},
-      {date:'4/3/26',snum:10,exercises:[],notes:''},
-      {date:'4/1/26',snum:9,exercises:[],notes:''},
-      {date:'3/30/26',snum:8,exercises:[],notes:'Weight 366 lbs'},
-      {date:'3/27/26',snum:7,exercises:[],notes:'Weight 375 lbs'},
-      {date:'3/25/26',snum:6,exercises:[],notes:''},
-      {date:'3/23/26',snum:5,exercises:[],notes:'Weight 375 lbs'},
-      {date:'3/23/26',snum:4,exercises:[],notes:''},
-      {date:'3/20/26',snum:3,exercises:[],notes:'Weight 379 lbs'},
-      {date:'3/18/26',snum:2,exercises:[],notes:'Weight 382 lbs'},
-      {date:'3/16/26',snum:1,exercises:[],notes:'Weight 391 lbs — new package start'},
-      {date:'7/7/25',snum:'',exercises:[],notes:'Started Mounjaro'},
-      {date:'9/22/24',snum:'',exercises:[],notes:'Weight 405 lbs'},
-      {date:'9/8/24',snum:'',exercises:[{name:'Exercises',sets:'',reps:'12',weight:'411'}],notes:'Weight 411 lbs'},
-      {date:'8/18/25',snum:'',exercises:[],notes:'Weight 425 lbs'},
-      {date:'8/11/25',snum:'',exercises:[],notes:'Weight 435 lbs'},
-      {date:'9/17/21',snum:'',exercises:[],notes:'Weight 463 lbs — earliest tracked weight'}
+      {date:'4/20/26',snum:16,exercises:[],notes:''},{date:'4/15/26',snum:15,exercises:[],notes:'Weight 370 lbs'},
+      {date:'4/13/26',snum:14,exercises:[],notes:''},{date:'4/10/26',snum:13,exercises:[],notes:''},
+      {date:'4/8/26',snum:12,exercises:[],notes:'Weight 363 lbs'},{date:'4/6/26',snum:11,exercises:[],notes:''},
+      {date:'4/3/26',snum:10,exercises:[],notes:''},{date:'4/1/26',snum:9,exercises:[],notes:''},
+      {date:'3/30/26',snum:8,exercises:[],notes:'Weight 366 lbs'},{date:'3/27/26',snum:7,exercises:[],notes:'Weight 375 lbs'},
+      {date:'3/25/26',snum:6,exercises:[],notes:''},{date:'3/23/26',snum:5,exercises:[],notes:'Weight 375 lbs'},
+      {date:'3/23/26',snum:4,exercises:[],notes:''},{date:'3/20/26',snum:3,exercises:[],notes:'Weight 379 lbs'},
+      {date:'3/18/26',snum:2,exercises:[],notes:'Weight 382 lbs'},{date:'3/16/26',snum:1,exercises:[],notes:'Weight 391 lbs — new package start'},
+      {date:'9/17/21',snum:'',exercises:[],notes:'Weight 463 lbs — earliest tracked weight on record'}
     ]
   }
 };
 
-let newSessions = [];
-let currentClientKey = '';
-let viewingAsTrainer = false;
-let currentExIndex = 0;
-let sessionExercises = [];
-let sessionDone = [];
-let deleteTarget = { clientKey:'', index:-1 };
-let chartInstance = null;
+let newSessions=[], cardioLogs=[];
+let currentClientKey='', viewingAsTrainer=false;
+let currentExIndex=0, sessionExercises=[], sessionDone=[], sessionSkipped=[];
+let deleteTarget={clientKey:'',index:-1}, chartInstance=null;
+let partnerVisible=false;
 
-document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
+document.getElementById('log-date').value=new Date().toISOString().split('T')[0];
+document.getElementById('cardio-date').value=new Date().toISOString().split('T')[0];
 
-function getClientCodes() {
-  const codes = {};
-  Object.keys(clientDB).forEach(k => { codes[clientDB[k].code] = k; });
-  return codes;
+function getClientCodes(){const c={};Object.keys(clientDB).forEach(k=>{c[clientDB[k].code]=k;});return c;}
+
+function trainerLogin(){
+  if(document.getElementById('trainer-pass').value===TRAINER_PASS){
+    show('screen-trainer');populateClientSelects();renderClientRoster();renderTrainerHistory();
+  }else{document.getElementById('trainer-err').style.display='block';}
 }
 
-function trainerLogin() {
-  if (document.getElementById('trainer-pass').value === TRAINER_PASS) {
-    show('screen-trainer');
-    populateClientSelects();
-    renderClientRoster();
-    renderTrainerHistory();
-  } else {
-    document.getElementById('trainer-err').style.display = 'block';
-  }
+function clientLogin(){
+  const code=document.getElementById('client-code-in').value.trim().toLowerCase();
+  const clientKey=getClientCodes()[code];
+  if(clientKey){
+    currentClientKey=clientKey;viewingAsTrainer=false;
+    document.getElementById('trainer-bar').style.display='none';
+    loadClientDashboard(clientKey);show('screen-client');
+  }else{document.getElementById('client-err').style.display='block';}
 }
 
-function clientLogin() {
-  const code = document.getElementById('client-code-in').value.trim().toLowerCase();
-  const codes = getClientCodes();
-  const clientKey = codes[code];
-  if (clientKey) {
-    currentClientKey = clientKey;
-    viewingAsTrainer = false;
-    document.getElementById('trainer-bar').style.display = 'none';
-    loadClientDashboard(clientKey);
-    show('screen-client');
-  } else {
-    document.getElementById('client-err').style.display = 'block';
-  }
-}
-
-function logout() {
+function logout(){
   show('screen-login');
-  document.getElementById('trainer-pass').value = '';
-  document.getElementById('client-code-in').value = '';
-  document.getElementById('trainer-err').style.display = 'none';
-  document.getElementById('client-err').style.display = 'none';
-  viewingAsTrainer = false;
+  document.getElementById('trainer-pass').value='';
+  document.getElementById('client-code-in').value='';
+  document.getElementById('trainer-err').style.display='none';
+  document.getElementById('client-err').style.display='none';
+  viewingAsTrainer=false;
 }
 
-function backToTrainer() {
-  show('screen-trainer');
-  viewingAsTrainer = false;
+function backToTrainer(){show('screen-trainer');viewingAsTrainer=false;}
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+function trainerTab(t){
+  document.querySelectorAll('[id^="ttab-"]').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('[id^="tcontent-"]').forEach(el=>el.classList.remove('active'));
+  document.getElementById('ttab-'+t).classList.add('active');
+  document.getElementById('tcontent-'+t).classList.add('active');
 }
 
-function show(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+function clientTab(t){
+  document.querySelectorAll('[id^="ctab-"]').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('[id^="ccontent-"]').forEach(el=>el.classList.remove('active'));
+  document.getElementById('ctab-'+t).classList.add('active');
+  document.getElementById('ccontent-'+t).classList.add('active');
 }
 
-function trainerTab(t) {
-  document.querySelectorAll('[id^="ttab-"]').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('[id^="tcontent-"]').forEach(el => el.classList.remove('active'));
-  document.getElementById('ttab-' + t).classList.add('active');
-  document.getElementById('tcontent-' + t).classList.add('active');
-}
-
-function clientTab(t) {
-  document.querySelectorAll('[id^="ctab-"]').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('[id^="ccontent-"]').forEach(el => el.classList.remove('active'));
-  document.getElementById('ctab-' + t).classList.add('active');
-  document.getElementById('ccontent-' + t).classList.add('active');
-}
-
-function populateClientSelects() {
-  const logSel = document.getElementById('log-client');
-  const histSel = document.getElementById('hist-client');
-  logSel.innerHTML = '<option value="">Select client...</option>';
-  histSel.innerHTML = '';
-  Object.keys(clientDB).forEach(key => {
-    const c = clientDB[key];
-    const o1 = document.createElement('option'); o1.value = key; o1.textContent = c.name; logSel.appendChild(o1);
-    const o2 = document.createElement('option'); o2.value = key; o2.textContent = c.name; histSel.appendChild(o2);
+function populateClientSelects(){
+  const logSel=document.getElementById('log-client');
+  const histSel=document.getElementById('hist-client');
+  const partSel=document.getElementById('partner-client');
+  logSel.innerHTML='<option value="">Select client...</option>';
+  histSel.innerHTML='';partSel.innerHTML='<option value="">Select partner...</option>';
+  Object.keys(clientDB).forEach(key=>{
+    const c=clientDB[key];
+    [logSel,histSel].forEach((sel,i)=>{
+      const o=document.createElement('option');o.value=key;o.textContent=c.name;
+      if(i===0||true)sel.appendChild(o);
+    });
+    const op=document.createElement('option');op.value=key;op.textContent=c.name;partSel.appendChild(op);
   });
 }
 
-function onClientSelect() {
-  const clientKey = document.getElementById('log-client').value;
-  if (!clientKey) { document.getElementById('log-snum').value = ''; return; }
-  const allSessions = getAllSessions(clientKey);
-  const maxSnum = allSessions.reduce((max, s) => Math.max(max, parseInt(s.snum) || 0), 0);
-  document.getElementById('log-snum').value = maxSnum + 1;
-  document.getElementById('no-session-yet').style.display = 'block';
-  document.getElementById('workout-logger').style.display = 'none';
+function togglePartner(){
+  partnerVisible=!partnerVisible;
+  document.getElementById('partner-section').style.display=partnerVisible?'block':'none';
+  document.getElementById('partner-toggle-btn').textContent=partnerVisible?'− Remove partner':'+ Add partner client to this session';
 }
 
-function getAllSessions(clientKey) {
-  const client = clientDB[clientKey];
-  const extra = newSessions.filter(s => s.client === clientKey);
-  return [...extra, ...(client ? client.sessions : [])];
+function onClientSelect(){
+  const clientKey=document.getElementById('log-client').value;
+  if(!clientKey){document.getElementById('log-snum').value='';return;}
+  const maxSnum=getAllSessions(clientKey).reduce((max,s)=>Math.max(max,parseInt(s.snum)||0),0);
+  document.getElementById('log-snum').value=maxSnum+1;
+  document.getElementById('no-session-yet').style.display='block';
+  document.getElementById('workout-logger').style.display='none';
 }
 
-function loadPreviousSession() {
-  const clientKey = document.getElementById('log-client').value;
-  if (!clientKey) { alert('Please select a client first.'); return; }
-  const snum = document.getElementById('copy-snum').value.trim();
-  if (!snum) { alert('Please enter a session number.'); return; }
-  const allSessions = getAllSessions(clientKey);
-  const found = allSessions.find(s => String(s.snum) === String(snum));
-  document.getElementById('copy-err').style.display = 'none';
-  if (!found) { document.getElementById('copy-err').style.display = 'block'; return; }
-  sessionExercises = found.exercises.map(e => ({ ...e, newReps: e.reps, newWeight: e.weight, newSets: e.sets }));
-  if (!sessionExercises.length) sessionExercises = [{ name:'', sets:'', reps:'', weight:'', newReps:'', newWeight:'', newSets:'' }];
-  sessionDone = new Array(sessionExercises.length).fill(false);
-  currentExIndex = 0;
-  document.getElementById('no-session-yet').style.display = 'none';
-  document.getElementById('workout-logger').style.display = 'block';
+function getAllSessions(clientKey){
+  return[...newSessions.filter(s=>s.client===clientKey),...(clientDB[clientKey]?.sessions||[])];
+}
+
+function loadPreviousSession(){
+  const clientKey=document.getElementById('log-client').value;
+  if(!clientKey){alert('Please select a client first.');return;}
+  const snum=document.getElementById('copy-snum').value.trim();
+  if(!snum){alert('Please enter a session number.');return;}
+  const found=getAllSessions(clientKey).find(s=>String(s.snum)===String(snum));
+  document.getElementById('copy-err').style.display='none';
+  if(!found){document.getElementById('copy-err').style.display='block';return;}
+  sessionExercises=found.exercises.map(e=>({...e,newReps:e.reps,newWeight:e.weight,newSets:e.sets,newName:e.name}));
+  if(!sessionExercises.length)sessionExercises=[{name:'',sets:'',reps:'',weight:'',newReps:'',newWeight:'',newSets:'',newName:''}];
+  sessionDone=new Array(sessionExercises.length).fill(false);
+  sessionSkipped=new Array(sessionExercises.length).fill(false);
+  currentExIndex=0;
+  document.getElementById('no-session-yet').style.display='none';
+  document.getElementById('workout-logger').style.display='block';
   renderWorkoutLogger();
 }
 
-function startBlankSession() {
-  sessionExercises = [{ name:'', sets:'', reps:'', weight:'', newReps:'', newWeight:'', newSets:'' }];
-  sessionDone = [false];
-  currentExIndex = 0;
-  document.getElementById('no-session-yet').style.display = 'none';
-  document.getElementById('workout-logger').style.display = 'block';
+function startBlankSession(){
+  sessionExercises=[{name:'',sets:'',reps:'',weight:'',newReps:'',newWeight:'',newSets:'',newName:''}];
+  sessionDone=[false];sessionSkipped=[false];currentExIndex=0;
+  document.getElementById('no-session-yet').style.display='none';
+  document.getElementById('workout-logger').style.display='block';
   renderWorkoutLogger();
 }
 
-function renderWorkoutLogger() {
-  const total = sessionExercises.length;
-  const done = sessionDone.filter(Boolean).length;
-  document.getElementById('ex-progress').textContent = done + '/' + total + ' done';
-  const cur = sessionExercises[currentExIndex];
-  const curContainer = document.getElementById('current-ex-container');
-  if (cur && !sessionDone[currentExIndex]) {
-    curContainer.innerHTML = `<div class="current-ex-card">
-      <div class="current-ex-label">▶ Current exercise</div>
-      <div class="current-ex-name">${cur.name || 'Exercise ' + (currentExIndex + 1)}</div>
-      <div class="current-ex-prev">Previous: ${cur.reps || '—'} reps &nbsp;·&nbsp; ${cur.weight || '—'} lbs &nbsp;·&nbsp; ${cur.sets || '—'} sets</div>
+function addExerciseMidSession(){
+  sessionExercises.push({name:'',sets:'',reps:'',weight:'',newReps:'',newWeight:'',newSets:'',newName:''});
+  sessionDone.push(false);sessionSkipped.push(false);
+  currentExIndex=sessionExercises.length-1;
+  renderWorkoutLogger();
+}
+
+function saveCurrentExName(){
+  const el=document.getElementById('cur-ex-name');
+  if(el)sessionExercises[currentExIndex].newName=el.value;
+}
+
+function renderWorkoutLogger(){
+  const total=sessionExercises.length;
+  const done=sessionDone.filter(Boolean).length+sessionSkipped.filter(Boolean).length;
+  document.getElementById('ex-progress').textContent=done+'/'+total+' done';
+  const cur=sessionExercises[currentExIndex];
+  const curContainer=document.getElementById('current-ex-container');
+  if(cur&&!sessionDone[currentExIndex]&&!sessionSkipped[currentExIndex]){
+    curContainer.innerHTML=`<div class="current-ex-card">
+      <div class="current-ex-label">▶ Current exercise — tap name to edit</div>
+      <input class="current-ex-name-input" type="text" id="cur-ex-name" value="${cur.newName||cur.name||''}" placeholder="Tap to enter exercise name..." />
+      ${cur.reps||cur.weight?`<div class="current-ex-prev">Previous: ${cur.reps||'—'} reps · ${cur.weight||'—'} lbs · ${cur.sets||'—'} sets</div>`:''}
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
         <div><div class="current-ex-label-small">Sets</div><input type="text" id="cur-sets" value="${cur.newSets||cur.sets||''}" placeholder="${cur.sets||'3'}" style="width:100%;padding:10px;border:none;border-radius:10px;font-size:16px;text-align:center;font-weight:600;"/></div>
         <div><div class="current-ex-label-small">Reps</div><input type="text" id="cur-reps" value="${cur.newReps||cur.reps||''}" placeholder="${cur.reps||'12'}" style="width:100%;padding:10px;border:none;border-radius:10px;font-size:16px;text-align:center;font-weight:600;"/></div>
         <div><div class="current-ex-label-small">Lbs</div><input type="text" id="cur-weight" value="${cur.newWeight||cur.weight||''}" placeholder="${cur.weight||'0'}" style="width:100%;padding:10px;border:none;border-radius:10px;font-size:16px;text-align:center;font-weight:600;"/></div>
       </div>
-      <button class="done-btn" onclick="markExDone(${currentExIndex})">✓ Done — next exercise</button>
+      <div class="ex-action-btns">
+        <button class="done-btn" onclick="markExDone(${currentExIndex})">✓ Done</button>
+        <button class="skip-btn" onclick="skipEx(${currentExIndex})">↷ Skip</button>
+      </div>
     </div>`;
-  } else { curContainer.innerHTML = ''; }
-  const nextContainer = document.getElementById('next-ex-container');
-  const nextIdx = sessionExercises.findIndex((e, i) => i > currentExIndex && !sessionDone[i]);
-  if (nextIdx >= 0) {
-    const nxt = sessionExercises[nextIdx];
-    nextContainer.innerHTML = `<div class="next-ex-card"><div style="font-size:24px;">➡️</div><div><div class="next-ex-label">Up next — get equipment ready</div><div class="next-ex-name">${nxt.name||'Exercise '+(nextIdx+1)}</div><div class="next-ex-prev">Previous: ${nxt.reps||'—'} reps · ${nxt.weight||'—'} lbs</div></div></div>`;
-  } else { nextContainer.innerHTML = ''; }
-  document.getElementById('ex-checklist').innerHTML = sessionExercises.map((e, i) =>
-    `<div class="ex-list-item ${sessionDone[i]?'done':''} ${i===currentExIndex&&!sessionDone[i]?'active':''}" onclick="jumpToEx(${i})">
-      <span class="ex-name-col">${sessionDone[i]?'✓ ':i===currentExIndex?'▶ ':''}${e.name||'Exercise '+(i+1)}</span>
-      <span class="ex-stats-col">${sessionDone[i]?(e.newReps||e.reps||'')+' reps '+(e.newWeight||e.weight||'')+'lbs':e.reps?e.reps+' prev':''}</span>
+  }else{curContainer.innerHTML='';}
+
+  const nextContainer=document.getElementById('next-ex-container');
+  const nextIdx=sessionExercises.findIndex((e,i)=>i>currentExIndex&&!sessionDone[i]&&!sessionSkipped[i]);
+  if(nextIdx>=0){
+    const nxt=sessionExercises[nextIdx];
+    nextContainer.innerHTML=`<div class="next-ex-card"><div style="font-size:24px;">➡️</div><div>
+      <div class="next-ex-label">Up next — get equipment ready</div>
+      <div class="next-ex-name">${nxt.newName||nxt.name||'Exercise '+(nextIdx+1)}</div>
+      ${nxt.reps?`<div class="next-ex-prev">Previous: ${nxt.reps||'—'} reps · ${nxt.weight||'—'} lbs</div>`:''}
+    </div></div>`;
+  }else{nextContainer.innerHTML='';}
+
+  document.getElementById('ex-checklist').innerHTML=sessionExercises.map((e,i)=>`
+    <div class="ex-list-item ${sessionDone[i]?'done':''} ${sessionSkipped[i]?'skipped':''} ${i===currentExIndex&&!sessionDone[i]&&!sessionSkipped[i]?'active':''}" onclick="jumpToEx(${i})">
+      <span class="ex-name-col">${sessionSkipped[i]?'↷ ':sessionDone[i]?'✓ ':i===currentExIndex?'▶ ':''}${e.newName||e.name||'Exercise '+(i+1)}</span>
+      <span class="ex-stats-col">${sessionDone[i]?(e.newReps||e.reps||'')+' '+(e.newWeight||e.weight?e.newWeight||e.weight+'lbs':''):sessionSkipped[i]?'skipped':e.reps?e.reps+' prev':''}</span>
     </div>`).join('');
 }
 
-function markExDone(idx) {
-  sessionExercises[idx].newSets = document.getElementById('cur-sets')?.value || '';
-  sessionExercises[idx].newReps = document.getElementById('cur-reps')?.value || '';
-  sessionExercises[idx].newWeight = document.getElementById('cur-weight')?.value || '';
-  sessionDone[idx] = true;
-  const nextIdx = sessionExercises.findIndex((e, i) => i > idx && !sessionDone[i]);
-  currentExIndex = nextIdx >= 0 ? nextIdx : idx;
+function markExDone(idx){
+  saveCurrentExName();
+  sessionExercises[idx].newSets=document.getElementById('cur-sets')?.value||'';
+  sessionExercises[idx].newReps=document.getElementById('cur-reps')?.value||'';
+  sessionExercises[idx].newWeight=document.getElementById('cur-weight')?.value||'';
+  sessionDone[idx]=true;
+  const nextIdx=sessionExercises.findIndex((e,i)=>i>idx&&!sessionDone[i]&&!sessionSkipped[i]);
+  currentExIndex=nextIdx>=0?nextIdx:idx;
   renderWorkoutLogger();
 }
 
-function jumpToEx(idx) { currentExIndex = idx; renderWorkoutLogger(); }
-
-function finishSession() {
-  const clientKey = document.getElementById('log-client').value;
-  if (!clientKey) { alert('Please select a client.'); return; }
-  const snum = document.getElementById('log-snum').value;
-  const date = document.getElementById('log-date').value;
-  const notes = document.getElementById('log-notes').value;
-  const d = date ? new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month:'numeric', day:'numeric', year:'2-digit' }) : date;
-  const exs = sessionExercises.map(e => ({ name:e.name, sets:e.newSets||e.sets, reps:e.newReps||e.reps, weight:e.newWeight||e.weight, note:e.note||'' }));
-  newSessions.unshift({ date:d, snum, exercises:exs, notes, client:clientKey });
-  document.getElementById('log-success-msg').textContent = 'Session ' + (snum||'') + ' for ' + clientDB[clientKey].name + ' saved!';
-  const banner = document.getElementById('log-success'); banner.style.display = 'flex';
-  setTimeout(() => banner.style.display = 'none', 3000);
-  document.getElementById('workout-logger').style.display = 'none';
-  document.getElementById('no-session-yet').style.display = 'none';
-  document.getElementById('copy-snum').value = '';
-  document.getElementById('log-notes').value = '';
-  sessionExercises = []; sessionDone = [];
-  renderTrainerHistory();
-  onClientSelect();
+function skipEx(idx){
+  saveCurrentExName();
+  sessionSkipped[idx]=true;
+  const nextIdx=sessionExercises.findIndex((e,i)=>i>idx&&!sessionDone[i]&&!sessionSkipped[i]);
+  currentExIndex=nextIdx>=0?nextIdx:idx;
+  renderWorkoutLogger();
 }
 
-function saveWeight() {
-  const w = document.getElementById('log-weight').value.trim();
-  const clientKey = document.getElementById('log-client').value;
-  if (!w || !clientKey) { alert('Please select a client and enter a weight.'); return; }
-  const prev = clientDB[clientKey].currentWeight;
-  clientDB[clientKey].currentWeight = parseFloat(w);
-  clientDB[clientKey].weightHistory.push({ date: new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'}), weight: parseFloat(w) });
-  alert('Weight updated for ' + clientDB[clientKey].name + ': ' + prev + ' → ' + w + ' lbs');
-  document.getElementById('log-weight').value = '';
+function jumpToEx(idx){currentExIndex=idx;renderWorkoutLogger();}
+
+function finishSession(){
+  const clientKey=document.getElementById('log-client').value;
+  if(!clientKey){alert('Please select a client.');return;}
+  const snum=document.getElementById('log-snum').value;
+  const date=document.getElementById('log-date').value;
+  const notes=document.getElementById('log-notes').value;
+  const d=date?new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'}):date;
+  const exs=sessionExercises
+    .filter((_,i)=>!sessionSkipped[i])
+    .map(e=>({name:e.newName||e.name,sets:e.newSets||e.sets,reps:e.newReps||e.reps,weight:e.newWeight||e.weight,note:e.note||''}));
+  const skipped=sessionExercises.filter((_,i)=>sessionSkipped[i]).map(e=>e.newName||e.name).filter(Boolean);
+  const fullNotes=notes+(skipped.length?'\nSkipped: '+skipped.join(', '):'');
+  const session={date:d,snum,exercises:exs,notes:fullNotes,client:clientKey};
+  newSessions.unshift(session);
+
+  // Partner session
+  const partnerKey=document.getElementById('partner-client').value;
+  if(partnerVisible&&partnerKey&&partnerKey!==clientKey){
+    const pSnum=document.getElementById('partner-snum').value||snum;
+    newSessions.unshift({date:d,snum:pSnum,exercises:exs,notes:fullNotes+' (partner session with '+clientDB[clientKey]?.name+')',client:partnerKey});
+  }
+
+  document.getElementById('log-success-msg').textContent='Session '+(snum||'')+' for '+clientDB[clientKey].name+' saved!';
+  const banner=document.getElementById('log-success');banner.style.display='flex';
+  setTimeout(()=>banner.style.display='none',3000);
+  document.getElementById('workout-logger').style.display='none';
+  document.getElementById('no-session-yet').style.display='none';
+  document.getElementById('copy-snum').value='';
+  document.getElementById('log-notes').value='';
+  sessionExercises=[];sessionDone=[];sessionSkipped=[];
+  renderTrainerHistory();onClientSelect();
 }
 
-function buildSessionHTML(s, clientKey, globalIndex, showDelete) {
-  const preview = s.exercises.length
-    ? s.exercises.slice(0, 3).map(e => e.name).join(', ') + (s.exercises.length > 3 ? ' +' + (s.exercises.length - 3) + ' more' : '')
-    : (s.notes || 'Session logged');
-  const detail = s.exercises.length
-    ? s.exercises.map(e => {
-        const stats = [e.sets?e.sets+' sets':'', e.reps?e.reps+' reps':'', e.weight?e.weight+' lbs':''].filter(Boolean).join(' · ');
-        return `<div class="ex-row"><div class="ex-name">${e.name}${e.note?'<div class="ex-note-small">'+e.note+'</div>':''}</div><div class="ex-stats">${stats}</div></div>`;
-      }).join('')
-    : '<div style="font-size:13px;color:#aaa;padding:6px 0;">No exercises recorded for this session.</div>';
-  const deleteBtn = showDelete
-    ? `<button class="btn-small red" style="font-size:11px;padding:4px 10px;" onclick="event.stopPropagation();deleteSession('${clientKey}',${globalIndex})">🗑 Delete</button>`
-    : '';
-  return `<div class="session-item">
+function saveWeight(){
+  const w=document.getElementById('log-weight').value.trim();
+  const clientKey=document.getElementById('log-client').value;
+  if(!w||!clientKey){alert('Please select a client and enter a weight.');return;}
+  const prev=clientDB[clientKey].currentWeight;
+  clientDB[clientKey].currentWeight=parseFloat(w);
+  clientDB[clientKey].weightHistory.push({date:new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'}),weight:parseFloat(w)});
+  alert('Weight updated for '+clientDB[clientKey].name+': '+prev+' → '+w+' lbs');
+  document.getElementById('log-weight').value='';
+}
+
+function saveCardio(){
+  const date=document.getElementById('cardio-date').value;
+  const type=document.getElementById('cardio-type').value;
+  const duration=document.getElementById('cardio-duration').value;
+  const distance=document.getElementById('cardio-distance').value;
+  const hr=document.getElementById('cardio-hr').value;
+  const cal=document.getElementById('cardio-cal').value;
+  const strava=document.getElementById('cardio-strava').value;
+  if(!type){alert('Please select an activity type.');return;}
+  const parts=[type,duration?duration+' min':'',distance?distance+' miles':'',hr?'HR: '+hr+' bpm':'',cal?cal+' cal':'',strava].filter(Boolean);
+  const logEntry={date,summary:parts.join(' · '),client:currentClientKey};
+  cardioLogs.push(logEntry);
+  newSessions.unshift({date:date?new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'}):date,snum:'',exercises:[],notes:'📱 Self-logged activity: '+parts.join(' · '),client:currentClientKey});
+  document.getElementById('cardio-success').style.display='flex';
+  setTimeout(()=>document.getElementById('cardio-success').style.display='none',3000);
+  ['cardio-type','cardio-duration','cardio-distance','cardio-hr','cardio-cal','cardio-strava'].forEach(id=>document.getElementById(id).value='');
+}
+
+function buildSessionHTML(s,clientKey,globalIndex,showDelete){
+  const preview=s.exercises.length?s.exercises.slice(0,3).map(e=>e.name).join(', ')+(s.exercises.length>3?' +'+(s.exercises.length-3)+' more':''):(s.notes||'Session logged');
+  const detail=s.exercises.length?s.exercises.map(e=>{
+    const stats=[e.sets?e.sets+' sets':'',e.reps?e.reps+' reps':'',e.weight?e.weight+' lbs':''].filter(Boolean).join(' · ');
+    return`<div class="ex-row"><div class="ex-name">${e.name}${e.note?'<div class="ex-note-small">'+e.note+'</div>':''}</div><div class="ex-stats">${stats}</div></div>`;
+  }).join(''):'<div style="font-size:13px;color:#aaa;padding:6px 0;">No exercises recorded.</div>';
+  const deleteBtn=showDelete?`<button class="btn-small red" style="font-size:11px;padding:4px 10px;" onclick="event.stopPropagation();deleteSession('${clientKey}',${globalIndex})">🗑 Delete</button>`:'';
+  return`<div class="session-item">
     <div class="session-header" onclick="toggleSession(this)">
       <div style="flex:1;">
         <div class="session-date">${s.date}</div>
         <div class="session-preview">${preview}</div>
-        ${s.notes && s.exercises.length ? `<div class="session-note-text">${s.notes}</div>` : ''}
+        ${s.notes&&s.exercises.length?`<div class="session-note-text">${s.notes}</div>`:''}
       </div>
       <span class="session-badge">S${s.snum||'—'}</span>
     </div>
     <div class="session-footer">
-      <span class="expand-hint">${s.exercises.length ? 'Tap to see ' + s.exercises.length + ' exercises ▾' : ''}</span>
+      <span class="expand-hint">${s.exercises.length?'Tap to see '+s.exercises.length+' exercises ▾':''}</span>
       ${deleteBtn}
     </div>
     <div class="session-detail">${detail}</div>
   </div>`;
 }
 
-function toggleSession(el) {
-  const item = el.closest('.session-item');
-  const detail = item.querySelector('.session-detail');
-  const hint = item.querySelector('.expand-hint');
-  if (detail.classList.contains('open')) {
-    detail.classList.remove('open');
-    if (hint) hint.style.display = 'inline';
-  } else {
-    detail.classList.add('open');
-    if (hint) hint.style.display = 'none';
-  }
+function toggleSession(el){
+  const item=el.closest('.session-item');
+  const detail=item.querySelector('.session-detail');
+  const hint=item.querySelector('.expand-hint');
+  if(detail.classList.contains('open')){detail.classList.remove('open');if(hint)hint.style.display='inline';}
+  else{detail.classList.add('open');if(hint)hint.style.display='none';}
 }
 
-function deleteSession(clientKey, globalIndex) {
-  deleteTarget = { clientKey, index: globalIndex };
-  document.getElementById('delete-client-name').textContent = clientDB[clientKey]?.name || 'this client';
+function deleteSession(clientKey,globalIndex){
+  deleteTarget={clientKey,index:globalIndex};
+  document.getElementById('delete-client-name').textContent=clientDB[clientKey]?.name||'this client';
   document.getElementById('delete-modal').classList.add('open');
 }
 
-function confirmDelete() {
-  const { clientKey, index } = deleteTarget;
-  const newCount = newSessions.filter(s => s.client === clientKey).length;
-  if (index < newCount) {
-    let ci = 0;
-    newSessions = newSessions.filter(s => { if (s.client !== clientKey) return true; return ci++ !== index; });
-  } else {
-    const dbIndex = index - newCount;
-    if (clientDB[clientKey]) clientDB[clientKey].sessions.splice(dbIndex, 1);
-  }
-  closeModal();
-  renderTrainerHistory();
-  if (currentClientKey === clientKey) loadClientDashboard(clientKey);
+function confirmDelete(){
+  const{clientKey,index}=deleteTarget;
+  const newCount=newSessions.filter(s=>s.client===clientKey).length;
+  if(index<newCount){let ci=0;newSessions=newSessions.filter(s=>{if(s.client!==clientKey)return true;return ci++!==index;});}
+  else{const dbIndex=index-newCount;if(clientDB[clientKey])clientDB[clientKey].sessions.splice(dbIndex,1);}
+  closeModal();renderTrainerHistory();
+  if(currentClientKey===clientKey)loadClientDashboard(clientKey);
 }
 
-function closeModal() { document.getElementById('delete-modal').classList.remove('open'); }
+function closeModal(){document.getElementById('delete-modal').classList.remove('open');}
 
-function renderTrainerHistory() {
-  const el = document.getElementById('trainer-history-list');
-  const clientKey = document.getElementById('hist-client')?.value;
-  if (!clientKey) { el.innerHTML = ''; return; }
-  const allSessions = getAllSessions(clientKey);
-  if (!allSessions.length) { el.innerHTML = '<div class="empty-state">No sessions logged yet for this client.</div>'; return; }
-  el.innerHTML = '<div class="card">' + allSessions.map((s, i) => buildSessionHTML(s, clientKey, i, true)).join('') + '</div>';
+function renderTrainerHistory(){
+  const el=document.getElementById('trainer-history-list');
+  const clientKey=document.getElementById('hist-client')?.value;
+  if(!clientKey){el.innerHTML='';return;}
+  const allSessions=getAllSessions(clientKey);
+  if(!allSessions.length){el.innerHTML='<div class="empty-state">No sessions logged yet.</div>';return;}
+  el.innerHTML='<div class="card">'+allSessions.map((s,i)=>buildSessionHTML(s,clientKey,i,true)).join('')+'</div>';
 }
 
-function loadClientDashboard(clientKey) {
-  const client = clientDB[clientKey];
-  if (!client) return;
-  document.getElementById('client-dash-title').textContent = client.name + "'s dashboard";
-  const allSessions = getAllSessions(clientKey);
-  const totalSessions = allSessions.length;
-  const weightLost = client.startWeight && client.currentWeight
-    ? (client.startWeight > 499 ? '140+ lbs' : (client.startWeight - client.currentWeight) + ' lbs')
-    : '—';
-  const weightProgress = client.startWeight && client.goalWeight && client.startWeight > client.goalWeight
-    ? Math.min(100, Math.max(0, Math.round(((client.startWeight - client.currentWeight) / (client.startWeight - client.goalWeight)) * 100)))
-    : 0;
+function loadClientDashboard(clientKey){
+  const client=clientDB[clientKey];
+  if(!client)return;
+  document.getElementById('client-dash-title').textContent=client.name+"'s dashboard";
+  const allSessions=getAllSessions(clientKey);
+  const totalSessions=allSessions.length;
+  const weightLost=client.startWeight>499?'140+ lbs':(client.startWeight&&client.currentWeight?(client.startWeight-client.currentWeight)+' lbs':'—');
+  const weightProgress=client.startWeight&&client.goalWeight&&client.startWeight>client.goalWeight?Math.min(100,Math.max(0,Math.round(((client.startWeight-client.currentWeight)/(client.startWeight-client.goalWeight))*100))):0;
 
-  let overviewHTML = '';
-
-  // Milestone card for Bob
-  if (clientKey === 'bob') {
-    overviewHTML += `<div class="milestone-card">
-      <div class="milestone-title">🏆 Amazing journey</div>
-      <div class="milestone-number">${weightLost}</div>
-      <div class="milestone-sub">Lost since starting above 500 lbs · Training since ${client.sinceDate}</div>
-    </div>`;
+  let html='';
+  if(clientKey==='bob'){
+    html+=`<div class="milestone-card"><div class="milestone-title">🏆 Amazing journey</div><div class="milestone-number">${weightLost}</div><div class="milestone-sub">Lost since starting above 500 lbs · Training since ${client.sinceDate}</div></div>`;
   }
-
-  // Metrics
-  overviewHTML += `<div class="metric-grid">
+  html+=`<div class="metric-grid">
     <div class="metric"><div class="metric-label">Current weight</div><div class="metric-value">${client.currentWeight||'—'} lbs</div><div class="metric-sub">Goal: ${client.goalWeight||'—'} lbs</div></div>
     <div class="metric"><div class="metric-label">Total sessions</div><div class="metric-value">${totalSessions}</div><div class="metric-sub">Since ${client.sinceDate||'start'}</div></div>
   </div>`;
-
-  // Goal progress
-  overviewHTML += `<div class="card">
-    <div class="section-title">Weight goal progress</div>
+  html+=`<div class="card"><div class="section-title">Weight goal progress</div>
     <div style="font-size:14px;color:#333;">${client.currentWeight||'—'} lbs <span style="color:#aaa;font-size:12px;">→ goal ${client.goalWeight||'—'} lbs</span></div>
     <div class="goal-bg"><div class="goal-fill" style="width:${weightProgress}%"></div></div>
-    <div class="goal-row"><span>Start: ${client.startWeight > 499 ? '500+ lbs' : (client.startWeight||'—')+' lbs'}</span><span>Goal: ${client.goalWeight||'—'} lbs</span></div>
+    <div class="goal-row"><span>Start: ${client.startWeight>499?'500+ lbs':(client.startWeight||'—')+' lbs'}</span><span>Goal: ${client.goalWeight||'—'} lbs</span></div>
   </div>`;
-
-  // Weight journey for Bob
-  if (clientKey === 'bob' && client.weightHistory?.length) {
-    overviewHTML += `<div class="card"><div class="section-title">Weight journey</div>
-      <div class="weight-journey">`;
-    client.weightHistory.slice(-8).forEach((wh, i, arr) => {
-      const prev = i > 0 ? arr[i-1].weight : null;
-      const change = prev && typeof wh.weight === 'number' && typeof prev === 'number'
-        ? (wh.weight < prev ? '↓ ' + (prev - wh.weight) + ' lbs' : '')
-        : '';
-      overviewHTML += `<div class="wj-row"><span class="wj-date">${wh.date}</span><span class="wj-weight">${wh.weight} lbs</span>${change?`<span class="wj-change">${change}</span>`:''}</div>`;
+  if(clientKey==='bob'&&client.weightHistory?.length){
+    html+=`<div class="card"><div class="section-title">Weight journey</div><div class="weight-journey">`;
+    client.weightHistory.forEach((wh,i,arr)=>{
+      const prev=i>0?arr[i-1].weight:null;
+      const change=prev&&typeof wh.weight==='number'&&typeof prev==='number'&&wh.weight<prev?'↓ '+(prev-wh.weight)+' lbs':'';
+      html+=`<div class="wj-row"><span class="wj-date">${wh.date}</span><span class="wj-weight">${wh.weight} lbs</span>${change?`<span class="wj-change">${change}</span>`:''}</div>`;
     });
-    overviewHTML += `</div></div>`;
+    html+=`</div></div>`;
   }
-
-  // Reminders
-  const remindersHTML = (client.reminders||[]).map(r =>
-    `<div class="reminder ${r.color}"><div class="reminder-icon">${r.icon}</div><div><div class="reminder-title">${r.title}</div><div class="reminder-text">${r.text}</div></div></div>`
-  ).join('');
-  overviewHTML += `<div class="card"><div class="section-title">Reminders & tips</div>${remindersHTML||'<div style="font-size:13px;color:#aaa;">No reminders set.</div>'}</div>`;
-
-  // Profile
-  overviewHTML += `<div class="card"><div class="section-title">My profile</div>
+  const remindersHTML=(client.reminders||[]).map(r=>`<div class="reminder ${r.color}"><div class="reminder-icon">${r.icon}</div><div><div class="reminder-title">${r.title}</div><div class="reminder-text">${r.text}</div></div></div>`).join('');
+  html+=`<div class="card"><div class="section-title">Reminders & tips</div>${remindersHTML}</div>`;
+  html+=`<div class="card"><div class="section-title">My profile</div>
     <div class="profile-row"><span class="profile-key">Goal</span><span class="profile-val">${client.goal||'—'}</span></div>
     <div class="profile-row"><span class="profile-key">Equipment</span><span class="profile-val">${client.equipment||'—'}</span></div>
     <div class="profile-row"><span class="profile-key">Physical notes</span><span class="profile-val">${client.physNotes||'—'}</span></div>
     <div class="profile-row"><span class="profile-key">Training style</span><span class="profile-val">${client.style||'—'}</span></div>
   </div>`;
-
-  document.getElementById('client-overview-content').innerHTML = overviewHTML;
+  document.getElementById('client-overview-content').innerHTML=html;
 
   // History
-  const histEl = document.getElementById('client-history-list');
-  if (!allSessions.length) {
-    histEl.innerHTML = '<div class="empty-state">No sessions logged yet. Check back after your next workout!</div>';
-  } else {
-    histEl.innerHTML = '<div class="card">' + allSessions.map((s, i) => buildSessionHTML(s, clientKey, i, false)).join('') + '</div>';
-  }
+  const histEl=document.getElementById('client-history-list');
+  histEl.innerHTML=allSessions.length?'<div class="card">'+allSessions.map((s,i)=>buildSessionHTML(s,clientKey,i,false)).join('')+'</div>':'<div class="empty-state">No sessions logged yet. Check back after your next workout!</div>';
 
   clientTab('overview');
-
-  // Chart for Nelson
-  if (clientKey === 'nelson') {
-    setTimeout(() => {
-      const canvas = document.getElementById('cc1');
-      if (canvas) {
-        if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-        chartInstance = new Chart(canvas, {
-          type:'line',
-          data:{labels:['S8','S10','S11','S13','S15'],datasets:[{label:'Reps at 70 lbs',data:[18,21,19,22,23],borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.08)',tension:0.3,fill:true,pointBackgroundColor:'#185FA5',pointRadius:5}]},
-          options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:14,max:28,ticks:{stepSize:2,color:'#aaa'},grid:{color:'rgba(0,0,0,0.05)'}},x:{ticks:{color:'#aaa'},grid:{display:false}}}}
-        });
+  if(clientKey==='nelson'){
+    setTimeout(()=>{
+      const canvas=document.getElementById('cc1');
+      if(canvas){
+        if(chartInstance){chartInstance.destroy();chartInstance=null;}
+        chartInstance=new Chart(canvas,{type:'line',data:{labels:['S8','S10','S11','S13','S15'],datasets:[{label:'Reps at 70 lbs',data:[18,21,19,22,23],borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.08)',tension:0.3,fill:true,pointBackgroundColor:'#185FA5',pointRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:14,max:28,ticks:{stepSize:2,color:'#aaa'},grid:{color:'rgba(0,0,0,0.05)'}},x:{ticks:{color:'#aaa'},grid:{display:false}}}}});
       }
-    }, 100);
+    },100);
   }
 }
 
-function renderClientRoster() {
-  const el = document.getElementById('client-roster');
-  const keys = Object.keys(clientDB);
-  if (!keys.length) { el.innerHTML = '<div class="empty-state">No clients yet. Add your first client below!</div>'; return; }
-  el.innerHTML = keys.map(key => {
-    const c = clientDB[key];
-    const sessions = getAllSessions(key);
-    const nextSnum = sessions.reduce((max, s) => Math.max(max, parseInt(s.snum) || 0), 0) + 1;
-    return `<div class="client-card">
+function renderClientRoster(){
+  const el=document.getElementById('client-roster');
+  const keys=Object.keys(clientDB);
+  if(!keys.length){el.innerHTML='<div class="empty-state">No clients yet.</div>';return;}
+  el.innerHTML=keys.map(key=>{
+    const c=clientDB[key];
+    const sessions=getAllSessions(key);
+    const nextSnum=sessions.reduce((max,s)=>Math.max(max,parseInt(s.snum)||0),0)+1;
+    return`<div class="client-card">
       <div class="client-card-header">
         <div class="client-avatar">${c.name.charAt(0).toUpperCase()}</div>
         <div style="flex:1;">
           <div class="client-name-text">${c.name}</div>
           <div class="client-sub">Code: ${c.code} · Next session: #${nextSnum}</div>
-          <div class="client-sub">${c.currentWeight||'—'} lbs · Goal: ${c.goalWeight||'—'} lbs</div>
+          <div class="client-sub">${c.currentWeight||'—'} lbs · Goal: ${c.goalWeight||'—'} lbs · ${sessions.length} sessions</div>
         </div>
       </div>
       <div class="client-actions">
@@ -792,62 +808,55 @@ function renderClientRoster() {
   }).join('');
 }
 
-function viewAsClient(clientKey) {
-  currentClientKey = clientKey;
-  viewingAsTrainer = true;
-  document.getElementById('trainer-bar').style.display = 'flex';
-  loadClientDashboard(clientKey);
-  show('screen-client');
+function viewAsClient(clientKey){
+  currentClientKey=clientKey;viewingAsTrainer=true;
+  document.getElementById('trainer-bar').style.display='flex';
+  loadClientDashboard(clientKey);show('screen-client');
 }
 
-function editClient(clientKey) {
-  const c = clientDB[clientKey];
-  const wt = prompt('Current weight (lbs):', c.currentWeight || '');
-  if (wt !== null && wt !== '') c.currentWeight = parseFloat(wt);
-  const goalWt = prompt('Goal weight (lbs):', c.goalWeight || '');
-  if (goalWt !== null && goalWt !== '') c.goalWeight = parseFloat(goalWt);
-  const goal = prompt('Goal (fitness):', c.goal || '');
-  if (goal !== null) c.goal = goal;
-  const phys = prompt('Physical notes:', c.physNotes || '');
-  if (phys !== null) c.physNotes = phys;
-  renderClientRoster();
-  alert('Profile updated for ' + c.name + '!');
+function editClient(clientKey){
+  const c=clientDB[clientKey];
+  const wt=prompt('Current weight (lbs):',c.currentWeight||'');if(wt!==null&&wt!=='')c.currentWeight=parseFloat(wt);
+  const goalWt=prompt('Goal weight (lbs):',c.goalWeight||'');if(goalWt!==null&&goalWt!=='')c.goalWeight=parseFloat(goalWt);
+  const goal=prompt('Fitness goal:',c.goal||'');if(goal!==null)c.goal=goal;
+  const phys=prompt('Physical notes:',c.physNotes||'');if(phys!==null)c.physNotes=phys;
+  renderClientRoster();alert('Profile updated for '+c.name+'!');
 }
 
-function toggleAddClient() {
-  const form = document.getElementById('add-client-form');
-  form.style.display = form.style.display === 'block' ? 'none' : 'block';
+function toggleAddClient(){
+  const form=document.getElementById('add-client-form');
+  form.style.display=form.style.display==='block'?'none':'block';
 }
 
-function saveNewClient() {
-  const name = document.getElementById('new-name').value.trim();
-  const code = document.getElementById('new-code').value.trim().toLowerCase();
-  if (!name || !code) { alert('Please enter a client name and login code.'); return; }
-  const key = name.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
-  clientDB[key] = {
-    name, code,
-    goal: document.getElementById('new-goal').value,
-    style: document.getElementById('new-style').value,
-    equipment: document.getElementById('new-equip').value,
-    physNotes: document.getElementById('new-phys').value,
-    currentWeight: parseFloat(document.getElementById('new-weight').value) || null,
-    goalWeight: parseFloat(document.getElementById('new-goalwt').value) || null,
-    startWeight: parseFloat(document.getElementById('new-weight').value) || null,
-    sinceDate: new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'}),
+function saveNewClient(){
+  const name=document.getElementById('new-name').value.trim();
+  const code=document.getElementById('new-code').value.trim().toLowerCase();
+  if(!name||!code){alert('Please enter a client name and login code.');return;}
+  const key=name.toLowerCase().replace(/\s+/g,'_')+'_'+Date.now();
+  const wt=parseFloat(document.getElementById('new-weight').value)||null;
+  clientDB[key]={
+    name,code,goal:document.getElementById('new-goal').value,style:document.getElementById('new-style').value,
+    equipment:document.getElementById('new-equip').value,physNotes:document.getElementById('new-phys').value,
+    currentWeight:wt,goalWeight:parseFloat(document.getElementById('new-goalwt').value)||null,startWeight:wt,
+    sinceDate:new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'}),
     reminders:[{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight so she can help keep you on track!"},{icon:'💪',color:'blue',title:'Keep it up!',text:'Consistency is everything. Show up and the results will follow.'}],
-    sessions:[]
+    weightHistory:wt?[{date:'Start',weight:wt}]:[],sessions:[]
   };
-  populateClientSelects();
-  renderClientRoster();
-  const banner = document.getElementById('new-client-success');
-  banner.style.display = 'flex';
-  setTimeout(() => banner.style.display = 'none', 3000);
-  ['new-name','new-code','new-goal','new-style','new-equip','new-phys','new-history','new-weight','new-goalwt'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  populateClientSelects();renderClientRoster();
+  document.getElementById('new-client-success').style.display='flex';
+  setTimeout(()=>document.getElementById('new-client-success').style.display='none',3000);
+  ['new-name','new-code','new-goal','new-style','new-equip','new-phys','new-history','new-weight','new-goalwt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   toggleAddClient();
 }
 
-document.getElementById('trainer-pass').addEventListener('keydown', e => { if (e.key === 'Enter') trainerLogin(); });
-document.getElementById('client-code-in').addEventListener('keydown', e => { if (e.key === 'Enter') clientLogin(); });
+document.getElementById('trainer-pass').addEventListener('keydown',e=>{if(e.key==='Enter')trainerLogin();});
+document.getElementById('client-code-in').addEventListener('keydown',e=>{if(e.key==='Enter')clientLogin();});
+document.getElementById('partner-client').addEventListener('change',function(){
+  const key=this.value;
+  if(!key)return;
+  const maxSnum=getAllSessions(key).reduce((max,s)=>Math.max(max,parseInt(s.snum)||0),0);
+  document.getElementById('partner-snum').value=maxSnum+1;
+});
 </script>
 </body>
 </html>
