@@ -515,7 +515,7 @@ function getAllSessions(clientKey){
 }
 
 function getSessionsUsed(clientKey){
-  return getAllSessions(clientKey).filter(s=>s.snum&&parseInt(s.snum)>0).length;
+  return getAllSessions(clientKey).reduce((max,s)=>Math.max(max,parseInt(s.snum)||0),0);
 }
 
 function loadPreviousSession(){
