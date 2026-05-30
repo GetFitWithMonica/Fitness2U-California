@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Fitness2U California</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh;}
@@ -48,8 +50,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sr-bar-bg{background:#ffe082;border-radius:99px;height:8px;margin:6px 0;}
 .sr-bar-fill{height:100%;border-radius:99px;background:#E67E22;}
 .sr-warning{background:#fdf0f0;border:1px solid #f5c6c6;border-radius:12px;padding:12px;margin-bottom:1rem;}
-.sr-warning-title{font-size:13px;font-weight:600;color:#c0392b;margin-bottom:4px;}
-.sr-warning-text{font-size:13px;color:#333;}
 .section-title{font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
 .goal-bg{background:#e8ecff;border-radius:99px;height:8px;margin-top:6px;overflow:hidden;}
 .goal-fill{height:100%;border-radius:99px;background:#185FA5;}
@@ -79,7 +79,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .done-btn{width:100%;padding:11px;font-size:14px;font-weight:600;cursor:pointer;background:#fff;color:#185FA5;border:none;border-radius:12px;}
 .skip-btn{width:100%;padding:11px;font-size:14px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:12px;}
 .next-ex-card{background:#e8f0ff;border-radius:12px;padding:12px;margin-bottom:1rem;display:flex;align-items:center;gap:10px;}
-.next-ex-label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;}.next-ex-name{font-size:14px;font-weight:600;color:#185FA5;}.next-ex-prev{font-size:12px;color:#666;}
 .ex-list-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;}
 .ex-list-item:last-child{border-bottom:none;}.ex-list-item.done{opacity:0.5;}.ex-list-item.skipped{opacity:0.4;text-decoration:line-through;}.ex-list-item.active{font-weight:600;}
 .ex-name-col{font-size:13px;color:#333;flex:1;}.ex-stats-col{font-size:12px;color:#185FA5;font-weight:500;margin-left:8px;}
@@ -129,6 +128,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .edit-ex-row{display:flex;gap:6px;align-items:center;margin-bottom:8px;}
 .edit-ex-name{flex:2;padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;}
 .edit-ex-num{flex:1;padding:7px 8px;border:1px solid #ddd;border-radius:8px;font-size:13px;text-align:center;}
+.loading{text-align:center;padding:2rem;color:#888;font-size:14px;}
+.sync-indicator{font-size:11px;color:#0F6E56;text-align:center;padding:4px;display:none;}
 </style>
 </head>
 <body>
@@ -162,6 +163,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div><div class="nav-sub">Fitness2U California</div><div class="nav-title">Trainer portal · Monica</div></div>
     <span class="nav-right" onclick="logout()">Sign out</span>
   </div>
+  <div class="sync-indicator" id="sync-indicator">✓ Saved to cloud</div>
   <div class="tab-row tab-row-4">
     <div class="tab active" onclick="trainerTab('log')" id="ttab-log">Log session</div>
     <div class="tab" onclick="trainerTab('clients')" id="ttab-clients">Clients</div>
@@ -169,7 +171,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="tab" onclick="trainerTab('notif')" id="ttab-notif">Reminders<span class="notif-dot" id="notif-dot"></span></div>
   </div>
 
-  <!-- LOG TAB -->
   <div class="tab-content active" id="tcontent-log">
     <div class="card">
       <div class="field"><label>Client</label>
@@ -198,12 +199,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div class="copy-session-box">
       <div class="copy-title">📋 Start from a previous session?</div>
-      <p style="font-size:12px;color:#666;margin-bottom:8px;">Enter any session number to load that workout. Edit names, update reps/weights, skip or add exercises as you go.</p>
+      <p style="font-size:12px;color:#666;margin-bottom:8px;">Enter any session number to load that workout. Edit names, reps, weights, skip or add exercises as you go.</p>
       <div class="copy-row">
         <input type="text" id="copy-snum" placeholder="Session number (e.g. 14)" />
         <button class="btn-small" onclick="loadPreviousSession()">Load</button>
       </div>
-      <div id="copy-err" style="font-size:12px;color:#c0392b;margin-top:6px;display:none;">Session not found. Try another number.</div>
+      <div id="copy-err" style="font-size:12px;color:#c0392b;margin-top:6px;display:none;">Session not found.</div>
     </div>
     <div id="no-session-yet" class="help-tip" style="display:none;">
       Load a previous session above, or <span style="color:#185FA5;cursor:pointer;font-weight:600;" onclick="startBlankSession()">start a blank session →</span>
@@ -218,15 +219,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <div id="ex-checklist"></div>
       </div>
-      <div class="field"><label>Session notes</label><textarea id="log-notes" placeholder="e.g. Great energy today, left shoulder still tight..."></textarea></div>
+      <div class="field"><label>Session notes</label><textarea id="log-notes" placeholder="e.g. Great energy today..."></textarea></div>
       <button class="btn-primary green" onclick="finishSession()">✓ Save complete session</button>
       <div class="success-banner" id="log-success"><span id="log-success-msg">Session saved!</span></div>
     </div>
   </div>
 
-  <!-- CLIENTS TAB -->
   <div class="tab-content" id="tcontent-clients">
-    <div id="client-roster"></div>
+    <div id="client-roster"><div class="loading">Loading clients...</div></div>
     <button class="btn-sec" onclick="toggleAddClient()">+ Add new client</button>
     <div class="add-client-form" id="add-client-form">
       <div class="section-title" style="margin-bottom:12px;">New client details</div>
@@ -240,23 +240,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="input-with-unit"><input type="text" id="new-goalwt" placeholder="160" /><span class="unit">lbs</span></div>
         </div>
       </div>
-      <div class="field"><label>Package size (sessions purchased)</label>
-        <input type="text" id="new-package" placeholder="e.g. 40" />
-      </div>
+      <div class="field"><label>Package size (sessions purchased)</label><input type="text" id="new-package" placeholder="e.g. 40" /></div>
       <div class="field"><label>Goal</label><input type="text" id="new-goal" placeholder="e.g. Lose weight, build strength" /></div>
       <div class="field"><label>Training style</label><input type="text" id="new-style" placeholder="e.g. Data-focused, casual" /></div>
       <div class="field"><label>Equipment</label><input type="text" id="new-equip" placeholder="e.g. Speediance, free weights" /></div>
-      <div class="field"><label>Physical notes</label><input type="text" id="new-phys" placeholder="e.g. Bad left knee, watch shoulders" /></div>
-      <div class="field"><label>Paste Google Doc history (optional — trainer eyes only)</label>
-        <textarea id="new-history" style="min-height:100px;" placeholder="Copy and paste their workout notes here."></textarea>
-      </div>
+      <div class="field"><label>Physical notes</label><input type="text" id="new-phys" placeholder="e.g. Bad left knee" /></div>
       <button class="btn-primary" onclick="saveNewClient()" style="margin-bottom:8px;">Save new client</button>
       <button class="btn-sec" onclick="toggleAddClient()">Cancel</button>
       <div class="success-banner" id="new-client-success">✓ Client added!</div>
     </div>
   </div>
 
-  <!-- HISTORY TAB -->
   <div class="tab-content" id="tcontent-history">
     <div class="card">
       <div class="help-tip" style="margin-bottom:10px;">Tap any session to expand. Use Edit to update or Delete to remove.</div>
@@ -267,17 +261,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="trainer-history-list"></div>
   </div>
 
-  <!-- REMINDERS TAB -->
   <div class="tab-content" id="tcontent-notif">
     <div class="card">
       <div class="section-title" style="margin-bottom:10px;">Create reminder</div>
       <div class="help-tip">Set a reminder for any client. It will appear as a notification on their dashboard when they next log in.</div>
-      <div class="field"><label>Client</label>
-        <select id="notif-client"><option value="">Select client...</option></select>
-      </div>
-      <div class="field"><label>Reminder message</label>
-        <textarea id="notif-msg" placeholder="e.g. Don't forget your shoulder conditioning this week!" style="min-height:60px;"></textarea>
-      </div>
+      <div class="field"><label>Client</label><select id="notif-client"><option value="">Select client...</option></select></div>
+      <div class="field"><label>Reminder message</label><textarea id="notif-msg" placeholder="e.g. Don't forget your shoulder conditioning!" style="min-height:60px;"></textarea></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
         <div class="field" style="margin-bottom:0"><label>Date</label><input type="date" id="notif-date" /></div>
         <div class="field" style="margin-bottom:0"><label>Time (optional)</label><input type="time" id="notif-time" /></div>
@@ -372,198 +361,290 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-const TRAINER_PASS='monica1945';
-let clientDB={
-  nelson:{name:'Nelson',code:'nel2027',packageSize:40,goal:'Reach 200 lbs, build muscle, improve HIIT performance',style:'Data-focused, motivated by numbers. Golf player — include rotation and core work.',equipment:'Speediance touchscreen cable system, Blocks free weights, weighted vest',physNotes:'Left side weaker on pallof press — extra reps left side. Left shoulder — do conditioning. Start left foot on side raises and inner thigh.',currentWeight:225,goalWeight:200,startWeight:214,sinceDate:'Sep 2023',
-  reminders:[{icon:'🏋️',color:'orange',title:'Shoulder conditioning',text:"Don't forget your shoulder conditioning — stronger shoulders mean stronger workouts!"},{icon:'⛳',color:'blue',title:'Golf performance',text:'Your rotation and core exercises directly improve your golf swing. Keep it up!'},{icon:'🧍',color:'green',title:'Posture reminder',text:'Good posture during all exercises — especially pallof press and rows.'},{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight so she can help keep you on track!"}],
-  weightHistory:[{date:'Feb 2025',weight:214},{date:'May 2026',weight:225}],
-  sessions:[
-    {date:'5/26/26',snum:15,exercises:[{name:'Chest press (Speediance)',sets:'1',reps:'23',weight:'70 lbs'},{name:'Paloffs',sets:'2',reps:'20',weight:'35 lbs',note:'Extra reps left side'},{name:'Ab ups',sets:'1',reps:'20',weight:'50 lbs'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Biceps machine',sets:'1',reps:'14',weight:'35 lbs'},{name:'Ab ups machine',sets:'2',reps:'20',weight:'20 lbs'},{name:'Tricep kickbacks machine',sets:'1',reps:'21',weight:'15 lbs'},{name:'Chest press flat bench',sets:'1',reps:'20',weight:'70 lbs'},{name:'Russian twists',sets:'1',reps:'40',weight:''},{name:'Squats machine (Speediance)',sets:'1',reps:'30',weight:'200 lbs',note:'Plus 20 eccentric'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50 lbs'},{name:'Standing side raises (Blocks)',sets:'1',reps:'20',weight:'20 lbs'},{name:'Ab roller',sets:'1',reps:'20',weight:''},{name:'Chest press incline',sets:'2',reps:'12-20',weight:'70-65 lbs'}],notes:'New chest press PR: 23 reps at 70 lbs'},
-    {date:'5/21/26',snum:14,exercises:[{name:'Donkey kicks (Speediance)',sets:'2',reps:'20-30',weight:'40-45 lbs'},{name:'Hamstring curls',sets:'1',reps:'20',weight:'22 lbs'},{name:'Air squats',sets:'1',reps:'52/min',weight:''},{name:'Knee extension sitting up',sets:'1',reps:'20',weight:'20 lbs',note:'Bench elevated'},{name:'Burpees',sets:'1',reps:'10',weight:''},{name:'Knee ext lying down',sets:'2',reps:'23-12',weight:'17 lbs'},{name:'Inner thigh',sets:'1',reps:'12',weight:'35 lbs'},{name:'Outer thigh',sets:'1',reps:'12',weight:'35 lbs'},{name:'Side raises',sets:'2',reps:'17-20',weight:'15 lbs'},{name:'Ab ups machine',sets:'1',reps:'30',weight:''}],notes:'Air squats 52/min personal best!'},
-    {date:'5/19/26',snum:13,exercises:[{name:'Chest press',sets:'1',reps:'22',weight:'70 lbs'},{name:'Paloffs',sets:'2',reps:'16',weight:'35 lbs'},{name:'Ab ups',sets:'1',reps:'20',weight:'50 lbs'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Biceps machine',sets:'1',reps:'12',weight:'35 lbs'},{name:'Tricep kickbacks machine',sets:'1',reps:'',weight:'15 lbs'},{name:'Chest press flat bench',sets:'1',reps:'15',weight:'70 lbs'},{name:'Russian twists',sets:'1',reps:'40',weight:''},{name:'Bird dipper',sets:'1',reps:'20',weight:'50 lbs'},{name:'Standing side raises',sets:'2',reps:'20-23',weight:'20 lbs'},{name:'Ball crunches',sets:'3',reps:'50',weight:''}],notes:'Left side on paloff weaker'},
-    {date:'5/15/26',snum:12,exercises:[{name:'Rows machine',sets:'2',reps:'30-17',weight:'30-45 lbs'},{name:'Ab ups',sets:'1',reps:'',weight:''},{name:'Bent over one side rows',sets:'1',reps:'20',weight:'40 lbs'},{name:'Back flys',sets:'1',reps:'',weight:''},{name:'Pull-ups',sets:'1',reps:'',weight:''},{name:'Lunges one side',sets:'1',reps:'',weight:'50 lbs'},{name:'Push-ups',sets:'1',reps:'22',weight:''},{name:'Squats wide vest+weight',sets:'1',reps:'20',weight:'100 lbs'},{name:'Paloffs',sets:'1',reps:'20',weight:'20 lbs',note:'Grip further from body'},{name:'Golf swing mimics',sets:'1',reps:'20',weight:'20 lbs'},{name:'Bar swing',sets:'1',reps:'20',weight:'20 lbs'}],notes:'Golf and back workout'},
-    {date:'5/12/26',snum:11,exercises:[{name:'Chest press',sets:'3',reps:'19-8-9',weight:'70 lbs'},{name:'Knee ups on machine',sets:'2',reps:'30',weight:''},{name:'Incline chest press',sets:'2',reps:'8-14',weight:'55-60 lbs'},{name:'Decline chest press',sets:'2',reps:'12-10',weight:'70 lbs'},{name:'Ab twists on machine',sets:'1',reps:'',weight:''},{name:'Bird dipper',sets:'1',reps:'20',weight:'50 lbs'},{name:'Bicep/forearm curls',sets:'1',reps:'12',weight:'25 lbs'},{name:'Overhead press',sets:'1',reps:'12',weight:'40 lbs'}],notes:''},
-    {date:'5/7/26',snum:10,exercises:[{name:'Chest press',sets:'1',reps:'21',weight:'70 lbs'},{name:'Paloffs',sets:'3',reps:'20',weight:'25-35 lbs'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Russian twists',sets:'1',reps:'40',weight:''},{name:'Chest press flat bench',sets:'1',reps:'17',weight:'70 lbs'},{name:'Squats',sets:'1',reps:'31',weight:'180 lbs'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50 lbs'},{name:'Standing side raises',sets:'1',reps:'20',weight:'20 lbs'}],notes:''},
-    {date:'5/5/26',snum:9,exercises:[{name:'Air squats',sets:'1',reps:'37/min',weight:''},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'28',weight:'40 lbs'},{name:'Overhead press',sets:'1',reps:'21',weight:'35 lbs'}],notes:''},
-    {date:'5/1/26',snum:8,exercises:[{name:'Chest press',sets:'1',reps:'18',weight:'70 lbs'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Bird dipper',sets:'1',reps:'20',weight:'50 lbs'}],notes:''},
-    {date:'4/16/26',snum:7,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'40 lbs'},{name:'Overhead press',sets:'1',reps:'24',weight:'35 lbs'}],notes:''},
-    {date:'4/9/26',snum:5,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'40 lbs'},{name:'Overhead press',sets:'1',reps:'21',weight:'35 lbs'}],notes:''},
-    {date:'4/2/26',snum:3,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'23',weight:'40 lbs'}],notes:''},
-    {date:'3/31/26',snum:2,exercises:[{name:'Chest press decline',sets:'1',reps:'20',weight:'65 lbs'},{name:'Pull-ups',sets:'2',reps:'30-19',weight:''},{name:'Squats',sets:'1',reps:'30',weight:'210 lbs'},{name:'Plank',sets:'1',reps:'3 min',weight:''}],notes:''},
-    {date:'3/27/26',snum:1,exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'35 lbs'},{name:'Overhead press',sets:'1',reps:'',weight:'35 lbs'}],notes:'Session 1 of new package'}
-  ]},
-  bob:{name:'Bob B.',code:'bobbr101',packageSize:43,goal:'Improve cardiorespiratory health, healthy weight loss, strong looking biceps',style:'Steady and consistent. Works well with encouragement. Does counter pushups on own (150 total in sets).',equipment:'Treadmill, leg press machine, free weights, upright bar',physNotes:'Started above 500 lbs. Hydrate often. Stretch 30 sec after leg press. Straighter body on upright bar pushups. Started Mounjaro July 2025.',currentWeight:358,goalWeight:300,startWeight:500,sinceDate:'Aug 2017',
-  reminders:[{icon:'💧',color:'blue',title:'Hydrate!',text:'Remember to drink water regularly throughout your workout and during the day.'},{icon:'🦵',color:'orange',title:'Post leg press stretch',text:'Stretch for 30 seconds after leg press — helps with soreness and recovery.'},{icon:'🧍',color:'green',title:'Pushup form',text:'Keep a straighter body position on upright bar pushups. Quality over quantity!'},{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight — tracking progress keeps you motivated!"},{icon:'💪',color:'purple',title:'Home exercises',text:'Keep up those counter pushups — 150 total in sets is great work between sessions!'}],
-  weightHistory:[{date:'Start (2017)',weight:'500+'},{date:'Aug 2018',weight:390},{date:'Sep 2021',weight:463},{date:'Apr 2026 (S21)',weight:365},{date:'May 2026 (S30)',weight:360},{date:'May 2026 (S31)',weight:358}],
-  sessions:[
-    {date:'5/27/26',snum:31,exercises:[{name:'Treadmill',sets:'1',reps:'4 min',weight:'',note:'1.5 mph 15% incline'},{name:'Leg press machine',sets:'6',reps:'10',weight:'310 lbs'},{name:'Upright bar pushups',sets:'2',reps:'15',weight:'',note:'Straighter body next time'}],notes:'Weight 358 lbs'},
-    {date:'5/25/26',snum:30,exercises:[{name:'Treadmill',sets:'1',reps:'4 min',weight:'',note:'1.5 mph 15% incline'},{name:'Leg press machine',sets:'6',reps:'15',weight:'220 lbs',note:'Slightly different position — mild groin soreness last week'}],notes:'Weight 360 lbs'},
-    {date:'5/22/26',snum:29,exercises:[],notes:''},{date:'5/20/26',snum:28,exercises:[{name:'Pushups',sets:'6',reps:'',weight:''},{name:'Leg press',sets:'1',reps:'15',weight:'220 lbs'}],notes:''},
-    {date:'5/18/26',snum:27,exercises:[],notes:''},{date:'5/11/26',snum:26,exercises:[],notes:''},
-    {date:'5/8/26',snum:25,exercises:[{name:'Pushups',sets:'10',reps:'',weight:''},{name:'Squats',sets:'1',reps:'',weight:''}],notes:''},
-    {date:'5/6/26',snum:24,exercises:[],notes:'Weight 368 lbs'},
-    {date:'5/4/26',snum:23,exercises:[{name:'Pushups',sets:'8',reps:'15',weight:''},{name:'Bicep curls',sets:'2',reps:'15',weight:'25 lbs',note:'Plus hammer curls'},{name:'Squats',sets:'1',reps:'15',weight:''}],notes:''},
-    {date:'5/1/26',snum:22,exercises:[],notes:''},{date:'4/29/26',snum:21,exercises:[],notes:'Weight 365 lbs'},
-    {date:'4/27/26',snum:20,exercises:[],notes:''},{date:'4/24/26',snum:19,exercises:[{name:'Knee extensions',sets:'1',reps:'',weight:'',note:'Introduced knee extensions'}],notes:''},
-    {date:'4/22/26',snum:18,exercises:[],notes:''},{date:'4/22/26',snum:17,exercises:[{name:'Pushups from couch',sets:'4',reps:'15',weight:''},{name:'Hammer curls',sets:'7',reps:'',weight:''}],notes:''},
-    {date:'4/20/26',snum:16,exercises:[],notes:''},{date:'4/15/26',snum:15,exercises:[],notes:'Weight 370 lbs'},
-    {date:'4/13/26',snum:14,exercises:[],notes:''},{date:'4/10/26',snum:13,exercises:[],notes:''},
-    {date:'4/8/26',snum:12,exercises:[],notes:'Weight 363 lbs'},{date:'4/6/26',snum:11,exercises:[],notes:''},
-    {date:'4/3/26',snum:10,exercises:[],notes:''},{date:'4/1/26',snum:9,exercises:[],notes:''},
-    {date:'3/30/26',snum:8,exercises:[],notes:'Weight 366 lbs'},{date:'3/27/26',snum:7,exercises:[],notes:'Weight 375 lbs'},
-    {date:'3/25/26',snum:6,exercises:[],notes:''},{date:'3/23/26',snum:5,exercises:[],notes:'Weight 375 lbs'},
-    {date:'3/20/26',snum:3,exercises:[],notes:'Weight 379 lbs'},{date:'3/18/26',snum:2,exercises:[],notes:'Weight 382 lbs'},
-    {date:'3/16/26',snum:1,exercises:[],notes:'Weight 391 lbs — new package start'},
-    {date:'9/17/21',snum:'',exercises:[],notes:'Weight 463 lbs — earliest tracked weight on record'}
-  ]}
-};
+const SUPABASE_URL = 'https://hpthacuybmkgmrllejsc.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdGhhY3V5Ym1rZ21ybGxlanNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNjk3NDQsImV4cCI6MjA5NTc0NTc0NH0.Y_TqgtTMk4N1jpcxQe4wZByHmwhbL1BaY_JVqDPQimY';
+const TRAINER_PASS = 'monica1945';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let newSessions=[],notifications=[],editExList=[];
-let currentClientKey='',viewingAsTrainer=false;
-let currentExIndex=0,sessionExercises=[],sessionDone=[],sessionSkipped=[];
-let deleteTarget={clientKey:'',index:-1},editTarget={clientKey:'',index:-1};
-let chartInstance=null,partnerVisible=false;
+let clientsCache = {};
+let sessionsCache = {};
+let notificationsCache = [];
+let currentClientKey = '';
+let viewingAsTrainer = false;
+let currentExIndex = 0, sessionExercises = [], sessionDone = [], sessionSkipped = [];
+let deleteTarget = { id: '', clientId: '' };
+let editTarget = { id: '', clientId: '' };
+let editExList = [];
+let partnerVisible = false;
 
-document.getElementById('log-date').value=new Date().toISOString().split('T')[0];
-document.getElementById('cardio-date').value=new Date().toISOString().split('T')[0];
-document.getElementById('notif-date').value=new Date().toISOString().split('T')[0];
+document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
+document.getElementById('cardio-date').value = new Date().toISOString().split('T')[0];
+document.getElementById('notif-date').value = new Date().toISOString().split('T')[0];
 
-function getClientCodes(){const c={};Object.keys(clientDB).forEach(k=>{c[clientDB[k].code]=k;});return c;}
+// ─── SEED DATA ────────────────────────────────────────────────────────────────
+const SEED_CLIENTS = [
+  {id:'nelson',name:'Nelson',code:'nel2027',package_size:40,goal:'Reach 200 lbs, build muscle, improve HIIT performance',style:'Data-focused, motivated by numbers. 2x per week. Golf player.',equipment:'Speediance touchscreen cable system, Blocks free weights, weighted vest',phys_notes:'Left side weaker on pallof press. Left shoulder — do conditioning. Start left foot on side raises.',current_weight:225,goal_weight:200,start_weight:214,since_date:'Sep 2023',reminders:[{icon:'🏋️',color:'orange',title:'Shoulder conditioning',text:"Don't forget your shoulder conditioning!"},{icon:'⛳',color:'blue',title:'Golf performance',text:'Your rotation and core exercises improve your golf swing.'},{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight!"}],weight_history:[{date:'Feb 2025',weight:214},{date:'May 2026',weight:225}]},
+  {id:'bob',name:'Bob B.',code:'bobbr101',package_size:43,goal:'Improve cardiorespiratory health, healthy weight loss, strong looking biceps',style:'Steady and consistent. 3x per week. Works well with encouragement.',equipment:'Treadmill, leg press machine, free weights, upright bar',phys_notes:'Started above 500 lbs. Hydrate often. Stretch 30 sec after leg press. Straighter body on upright bar pushups. Started Mounjaro July 2025.',current_weight:358,goal_weight:300,start_weight:500,since_date:'Aug 2017',reminders:[{icon:'💧',color:'blue',title:'Hydrate!',text:'Remember to drink water regularly.'},{icon:'🦵',color:'orange',title:'Post leg press stretch',text:'Stretch 30 seconds after leg press.'},{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight!"}],weight_history:[{date:'Start (2017)',weight:'500+'},{date:'Aug 2018',weight:390},{date:'Sep 2021',weight:463},{date:'May 2026',weight:358}]},
+  {id:'stuart',name:'Stuart',code:'stu101',package_size:48,goal:'Weight loss and fitness consistency',style:'3x per week. Outdoor/home workouts. Pool work in summers. Mom Jane pays.',equipment:'Jump rope, bike, weights, abs equipment',phys_notes:'No-shows noted occasionally. Pool work in summer months.',current_weight:227,goal_weight:200,start_weight:231,since_date:'Oct 2025',reminders:[{icon:'💪',color:'blue',title:'Keep showing up!',text:'Consistency is everything. 3x per week is your goal.'},{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight!"}],weight_history:[{date:'Oct 2025 (S1)',weight:216},{date:'Feb 2026 (S1)',weight:215},{date:'May 2026 (S43)',weight:227}]},
+  {id:'paul',name:'Paul & Lucy',code:'paul202',package_size:8,goal:'Stretching, toning, maintain fitness at 65',style:'2x per week. Age 65. Mostly stretching and toning. Lucy (mom) pays.',equipment:'Light weights, bands, Bosu, bench',phys_notes:'Gate code 4131 (trainer eyes only). Lucy has back issues. Gentle approach.',current_weight:null,goal_weight:null,start_weight:null,since_date:'Jun 2018',reminders:[{icon:'🧘',color:'blue',title:'Stretching focus',text:'Keep up your stretching routine — flexibility is key at every age.'},{icon:'💪',color:'green',title:'Great consistency!',text:'You two have been showing up for years. Keep it up!'}],weight_history:[]},
+  {id:'tracyart',name:'Tracy & Art',code:'trayart201',package_size:8,goal:'Maintain fitness, strength and flexibility',style:'2x per week. Mix of yoga, walks, and strength sessions.',equipment:'Kettlebells, bands, ball, light weights',phys_notes:'Gate/door code 9786 (trainer eyes only). Sessions alternate both together, just Tracy, or just Art.',current_weight:null,goal_weight:null,start_weight:null,since_date:'Sep 2022',reminders:[{icon:'🧘',color:'blue',title:'Yoga days',text:'Yoga sessions are great for flexibility and recovery.'},{icon:'💪',color:'green',title:'Great teamwork!',text:'Working out together keeps you both accountable.'}],weight_history:[]},
+  {id:'janet',name:'Janet Fox',code:'jan401',package_size:8,goal:'Maintain fitness, strength, flexibility',style:'3x per week. Long-term client. Mix of gym, walks, weights.',equipment:'Bosu, weights, bands, step, machine',phys_notes:'Early shoulder issues — watch right arm. Has done FaceTime sessions. Long-term client since 2016.',current_weight:null,goal_weight:null,start_weight:null,since_date:'Jan 2016',reminders:[{icon:'💪',color:'blue',title:'Keep it up!',text:'You have been with Monica since 2016 — incredible consistency!'},{icon:'🧘',color:'green',title:'Shoulder awareness',text:'Listen to your shoulder — quality over quantity always.'}],weight_history:[]},
+  {id:'gwen',name:'Gwen',code:'gwen501',package_size:4,goal:'Keep working out, vary between standard, cardio and dip workouts. Add plié squats.',style:'1x per week. Consistent long-term client.',equipment:'Ball, bands, light weights, TRX, Bosu',phys_notes:'Rotator cuff history. Had surgery Nov 2022 — recovered well. Email: gwensongs@sbcglobal.net',current_weight:null,goal_weight:null,start_weight:null,since_date:'Jun 2022',reminders:[{icon:'🏋️',color:'orange',title:'Shoulder awareness',text:'Keep listening to your shoulder — great progress since surgery.'},{icon:'💪',color:'blue',title:'Plié squats',text:'Remember to add plié squats to your routine!'}],weight_history:[]},
+  {id:'elizabeth',name:'Elizabeth',code:'eliz710',package_size:4,goal:'Build consistency, improve fitness',style:'1x per week. Showing up and doing stuff on own too. Age 61.',equipment:'Rower, stair steppers, dips, light weights',phys_notes:'Age 61, weight 258 lbs. Shoulder conditioning needed. Balance work — airplane/bird dippers. Home exercises: steppers 3x/week, walk 30 min 3x/week, shoulder rotation daily.',current_weight:258,goal_weight:220,start_weight:258,since_date:'Feb 2026',reminders:[{icon:'🚶',color:'blue',title:'Home exercises',text:'Walk 30 min 3x per week and steppers on off days.'},{icon:'🔄',color:'orange',title:'Shoulder rotation',text:'Do your shoulder rotation exercises every day!'}],weight_history:[{date:'Feb 2026',weight:258}]},
+  {id:'don',name:'Don',code:'don901',package_size:8,goal:'Show up! Build strength, improve pull-ups and overhead press.',style:'2x per week. Age 70. Very motivated — works out on own. Oculus VR user.',equipment:'Pull-up bar, Bosu, overhead press, machine pull-ups, Oculus VR',phys_notes:'Age 70, weight 199 lbs, goal 190. Right rotator cuff history. Door code 1242 (trainer eyes only). Email: Dalesser1242@comcast.net. Oculus target score: beat 770!',current_weight:199,goal_weight:190,start_weight:199,since_date:'Aug 2020',reminders:[{icon:'🎮',color:'blue',title:'Oculus goal',text:'Current high score: 770. Beat it this session!'},{icon:'💪',color:'green',title:'Pull-up progress',text:'Pull-ups are getting stronger every session. Keep going!'},{icon:'🦺',color:'orange',title:'Shoulder awareness',text:'Keep listening to that right shoulder.'}],weight_history:[{date:'Dec 2022',weight:196},{date:'Mar 2026',weight:188},{date:'May 2026',weight:189}]},
+  {id:'suzanne',name:'Suzanne',code:'suz601',package_size:4,goal:'Build strength, improve pull-ups',style:'1x per week.',equipment:'Pull-up machine, Bosu, kettlebell, weights',phys_notes:'Working on pull-up progression. Uses Oculus and bike for warm-up.',current_weight:null,goal_weight:null,start_weight:null,since_date:'Mar 2026',reminders:[{icon:'💪',color:'blue',title:'Pull-up progression',text:'Every rep counts — you are getting stronger!'},{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight!"}],weight_history:[]},
+  {id:'patricia',name:'Patricia Pilas',code:'patricia40',package_size:8,goal:'Gain muscle, prevent Osteopenia, increase reps and weight lifted',style:'2x per week. Age 40. Resting HR 70, max HR ~186.',equipment:'Ball, ankle weights (2 lbs), light weights (5-10 lbs), bands',phys_notes:'Age 40, weight 120 lbs. High HR during squats (~183-189). Adding resistance bands June 1. Regular stretching: hamstrings, cobra, bow pose, child\'s pose, pigeon.',current_weight:120,goal_weight:null,start_weight:120,since_date:'May 2025',reminders:[{icon:'💪',color:'blue',title:'Resistance bands',text:'Bands starting June 1 — great next step for building strength.'},{icon:'🦴',color:'orange',title:'Osteopenia prevention',text:'Weight-bearing exercises are exactly what your bones need. Keep it up!'}],weight_history:[{date:'May 2025',weight:120}]},
+  {id:'johevan',name:'Johanna & Evan',code:'johevan810',package_size:24,goal:'Show up and get stronger together',style:'2x per week. High energy couple. Johanna age 37, Evan age 41.',equipment:'Ropes, kettlebells, box, bench, ball, dumbbells',phys_notes:'Address: 8746 Winding Way, Fair Oaks. Email: jkateb@gmail.com. Johanna birthday Jan 9. Dog: Max. Johanna was pregnant — went into labor 1/12/22 during session!',current_weight:null,goal_weight:null,start_weight:null,since_date:'Apr 2021',reminders:[{icon:'💪',color:'blue',title:'Keep showing up!',text:'You two are an amazing team. Consistency wins!'},{icon:'🏃',color:'green',title:'Run times',text:'Work on improving those run times each session.'}],weight_history:[]},
+  {id:'darlene',name:'Darlene',code:'dar901',package_size:0,goal:'Occasional sessions',style:'Occasional client.',equipment:'Varies',phys_notes:'Works with Monica on occasion.',current_weight:null,goal_weight:null,start_weight:null,since_date:'2024',reminders:[{icon:'💪',color:'blue',title:'Welcome back!',text:'Great to see you — let\'s make this session count!'}],weight_history:[]},
+];
 
-function trainerLogin(){
-  if(document.getElementById('trainer-pass').value===TRAINER_PASS){
-    show('screen-trainer');populateClientSelects();renderClientRoster();renderTrainerHistory();updateNotifDot();
-  }else{document.getElementById('trainer-err').style.display='block';}
+async function seedClientsIfNeeded() {
+  const { data } = await sb.from('clients').select('id').limit(1);
+  if (!data || data.length === 0) {
+    for (const c of SEED_CLIENTS) {
+      await sb.from('clients').upsert({
+        id: c.id, name: c.name, code: c.code.toLowerCase(),
+        package_size: c.package_size || 0, goal: c.goal || '',
+        style: c.style || '', equipment: c.equipment || '',
+        phys_notes: c.phys_notes || '',
+        current_weight: c.current_weight, goal_weight: c.goal_weight,
+        start_weight: c.start_weight, since_date: c.since_date || '',
+        reminders: c.reminders || [], weight_history: c.weight_history || []
+      });
+    }
+    await seedNelsonSessions();
+    await seedBobSessions();
+    await seedStuartSessions();
+  }
 }
 
-function clientLogin(){
-  const code=document.getElementById('client-code-in').value.trim().toLowerCase();
-  const clientKey=getClientCodes()[code];
-  if(clientKey){
-    currentClientKey=clientKey;viewingAsTrainer=false;
-    document.getElementById('trainer-bar').style.display='none';
-    loadClientDashboard(clientKey);show('screen-client');checkClientNotif(clientKey);
-  }else{document.getElementById('client-err').style.display='block';}
+async function seedNelsonSessions() {
+  const sessions = [
+    {snum:'16',date:'5/28/26',exercises:[{name:'Ab ups with cables',sets:'1',reps:'20',weight:''},{name:'Bent over one side rows',sets:'1',reps:'20',weight:'40 lbs'},{name:'Bosu',sets:'1',reps:'50',weight:''},{name:'Back flys',sets:'1',reps:'20',weight:'15 lbs'},{name:'Pull-ups',sets:'1',reps:'',weight:''},{name:'Lunges one side',sets:'1',reps:'20',weight:'50 lbs'},{name:'Push-ups',sets:'1',reps:'30',weight:''},{name:'Bosu abs',sets:'1',reps:'50',weight:''},{name:'Paloffs',sets:'1',reps:'20',weight:'20 lbs'},{name:'Duck walks',sets:'3',reps:'6',weight:'50 lbs vest'},{name:'Prisoner get ups',sets:'3',reps:'',weight:'50 lbs'},{name:'Bar swing',sets:'1',reps:'20',weight:'20 lbs'}],notes:'Golf and back workout'},
+    {snum:'15',date:'5/26/26',exercises:[{name:'Chest press (Speediance)',sets:'1',reps:'23',weight:'70 lbs'},{name:'Paloffs',sets:'2',reps:'20',weight:'35 lbs',note:'Extra reps left side'},{name:'Ab ups',sets:'1',reps:'20',weight:'50 lbs'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Biceps machine',sets:'1',reps:'14',weight:'35 lbs'},{name:'Ab ups machine',sets:'2',reps:'20',weight:'20 lbs'},{name:'Tricep kickbacks machine',sets:'1',reps:'21',weight:'15 lbs'},{name:'Chest press flat bench',sets:'1',reps:'20',weight:'70 lbs'},{name:'Russian twists',sets:'1',reps:'40',weight:''},{name:'Squats machine (Speediance)',sets:'1',reps:'30',weight:'200 lbs',note:'Plus 20 eccentric'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50 lbs'},{name:'Standing side raises',sets:'1',reps:'20',weight:'20 lbs'},{name:'Ab roller',sets:'1',reps:'20',weight:''},{name:'Chest press incline',sets:'2',reps:'12-20',weight:'70-65 lbs'}],notes:'New chest press PR: 23 reps at 70 lbs'},
+    {snum:'14',date:'5/21/26',exercises:[{name:'Donkey kicks',sets:'2',reps:'20-30',weight:'40-45 lbs'},{name:'Hamstring curls',sets:'1',reps:'20',weight:'22 lbs'},{name:'Air squats',sets:'1',reps:'52/min',weight:''},{name:'Knee extension sitting up',sets:'1',reps:'20',weight:'20 lbs',note:'Bench elevated'},{name:'Burpees',sets:'1',reps:'10',weight:''},{name:'Inner thigh',sets:'1',reps:'12',weight:'35 lbs'},{name:'Outer thigh',sets:'1',reps:'12',weight:'35 lbs'},{name:'Side raises',sets:'2',reps:'17-20',weight:'15 lbs'},{name:'Ab ups machine',sets:'1',reps:'30',weight:''}],notes:'Air squats 52/min — personal best!'},
+    {snum:'13',date:'5/19/26',exercises:[{name:'Chest press',sets:'1',reps:'22',weight:'70 lbs'},{name:'Paloffs',sets:'2',reps:'16',weight:'35 lbs'},{name:'Ab ups',sets:'1',reps:'20',weight:'50 lbs'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Biceps machine',sets:'1',reps:'12',weight:'35 lbs'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50 lbs'},{name:'Standing side raises',sets:'2',reps:'20-23',weight:'20 lbs'},{name:'Ball crunches',sets:'3',reps:'50',weight:''}],notes:'Left side on paloff weaker'},
+    {snum:'12',date:'5/15/26',exercises:[{name:'Rows machine',sets:'2',reps:'30-17',weight:'30-45 lbs'},{name:'Bent over one side rows',sets:'1',reps:'20',weight:'40 lbs'},{name:'Pull-ups',sets:'1',reps:'',weight:''},{name:'Push-ups',sets:'1',reps:'22',weight:''},{name:'Squats wide vest+weight',sets:'1',reps:'20',weight:'100 lbs'},{name:'Paloffs',sets:'1',reps:'20',weight:'20 lbs',note:'Grip further from body'},{name:'Golf swing mimics',sets:'1',reps:'20',weight:'20 lbs'},{name:'Bar swing',sets:'1',reps:'20',weight:'20 lbs'}],notes:'Golf and back workout'},
+    {snum:'11',date:'5/12/26',exercises:[{name:'Chest press',sets:'3',reps:'19-8-9',weight:'70 lbs'},{name:'Incline chest press',sets:'2',reps:'8-14',weight:'55-60 lbs'},{name:'Decline chest press',sets:'2',reps:'12-10',weight:'70 lbs'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50 lbs'},{name:'Overhead press',sets:'1',reps:'12',weight:'40 lbs'}],notes:''},
+    {snum:'10',date:'5/7/26',exercises:[{name:'Chest press',sets:'1',reps:'21',weight:'70 lbs'},{name:'Paloffs',sets:'3',reps:'20',weight:'25-35 lbs'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Squats',sets:'1',reps:'31',weight:'180 lbs'},{name:'Bird dipper',sets:'1',reps:'20',weight:'50 lbs'}],notes:''},
+    {snum:'9',date:'5/5/26',exercises:[{name:'Air squats',sets:'1',reps:'37/min',weight:''},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'28',weight:'40 lbs'},{name:'Overhead press',sets:'1',reps:'21',weight:'35 lbs'}],notes:''},
+    {snum:'8',date:'5/1/26',exercises:[{name:'Chest press',sets:'1',reps:'18',weight:'70 lbs'},{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Bird dipper',sets:'1',reps:'20',weight:'50 lbs'}],notes:''},
+    {snum:'7',date:'4/16/26',exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'40 lbs'},{name:'Overhead press',sets:'1',reps:'24',weight:'35 lbs'}],notes:''},
+    {snum:'5',date:'4/9/26',exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'40 lbs'},{name:'Overhead press',sets:'1',reps:'21',weight:'35 lbs'}],notes:''},
+    {snum:'3',date:'4/2/26',exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'23',weight:'40 lbs'}],notes:''},
+    {snum:'2',date:'3/31/26',exercises:[{name:'Chest press decline',sets:'1',reps:'20',weight:'65 lbs'},{name:'Pull-ups',sets:'2',reps:'30-19',weight:''},{name:'Squats',sets:'1',reps:'30',weight:'210 lbs'},{name:'Plank',sets:'1',reps:'3 min',weight:''}],notes:''},
+    {snum:'1',date:'3/27/26',exercises:[{name:'Pull-ups',sets:'2',reps:'30',weight:''},{name:'Donkey kicks',sets:'1',reps:'25',weight:'35 lbs'},{name:'Overhead press',sets:'1',reps:'',weight:'35 lbs'}],notes:'Session 1 of new package'},
+  ];
+  for (const s of sessions) {
+    await sb.from('sessions').insert({client_id:'nelson',date:s.date,snum:s.snum,exercises:s.exercises,notes:s.notes||''});
+  }
 }
 
-function logout(){
+async function seedBobSessions() {
+  const sessions = [
+    {snum:'31',date:'5/27/26',exercises:[{name:'Treadmill',sets:'1',reps:'4 min',weight:'',note:'1.5 mph 15% incline'},{name:'Leg press machine',sets:'6',reps:'10',weight:'310 lbs'},{name:'Upright bar pushups',sets:'2',reps:'15',weight:'',note:'Straighter body next time'}],notes:'Weight 358 lbs — not sore from last leg press'},
+    {snum:'30',date:'5/25/26',exercises:[{name:'Treadmill',sets:'1',reps:'4 min',weight:'',note:'1.5 mph 15% incline'},{name:'Leg press machine',sets:'6',reps:'15',weight:'220 lbs',note:'Slightly different position — mild groin soreness last week'}],notes:'Weight 360 lbs'},
+    {snum:'29',date:'5/22/26',exercises:[],notes:''},
+    {snum:'28',date:'5/20/26',exercises:[{name:'Pushups',sets:'6',reps:'',weight:''},{name:'Leg press',sets:'1',reps:'15',weight:'220 lbs'}],notes:''},
+    {snum:'23',date:'5/4/26',exercises:[{name:'Pushups',sets:'8',reps:'15',weight:''},{name:'Bicep curls',sets:'2',reps:'15',weight:'25 lbs',note:'Plus hammer curls'},{name:'Squats',sets:'1',reps:'15',weight:''}],notes:''},
+    {snum:'17',date:'4/22/26',exercises:[{name:'Pushups from couch',sets:'4',reps:'15',weight:''},{name:'Hammer curls',sets:'7',reps:'',weight:''}],notes:'Sets of 15 pushups'},
+    {snum:'7',date:'3/27/26',exercises:[],notes:'Weight 375 lbs'},
+    {snum:'3',date:'3/20/26',exercises:[],notes:'Weight 379 lbs'},
+    {snum:'2',date:'3/18/26',exercises:[],notes:'Weight 382 lbs'},
+    {snum:'1',date:'3/16/26',exercises:[],notes:'Weight 391 lbs — new package start'},
+  ];
+  for (const s of sessions) {
+    await sb.from('sessions').insert({client_id:'bob',date:s.date,snum:s.snum,exercises:s.exercises,notes:s.notes||''});
+  }
+}
+
+async function seedStuartSessions() {
+  const sessions = [
+    {snum:'43',date:'5/29/26',exercises:[{name:'Walk',sets:'1',reps:'',weight:''},{name:'Jump rope',sets:'1',reps:'',weight:''},{name:'Bike',sets:'1',reps:'',weight:''},{name:'Abs',sets:'1',reps:'',weight:''},{name:'Weights',sets:'1',reps:'',weight:''}],notes:'Weight 227 lbs'},
+    {snum:'42',date:'5/28/26',exercises:[{name:'Walk',sets:'1',reps:'',weight:''},{name:'Jump rope',sets:'1',reps:'',weight:''},{name:'Bike',sets:'1',reps:'',weight:''},{name:'Abs',sets:'1',reps:'',weight:''},{name:'Weights',sets:'1',reps:'',weight:''}],notes:'Weight 226 lbs'},
+    {snum:'41',date:'5/22/26',exercises:[{name:'Walk',sets:'1',reps:'',weight:''},{name:'Jump rope',sets:'1',reps:'',weight:''},{name:'Bike',sets:'1',reps:'',weight:''},{name:'Abs',sets:'1',reps:'',weight:''},{name:'Weights',sets:'1',reps:'',weight:''}],notes:'Weight 222 lbs'},
+    {snum:'1',date:'2/9/26',exercises:[{name:'Walk',sets:'1',reps:'',weight:''},{name:'Jump rope',sets:'1',reps:'',weight:''},{name:'Squats',sets:'1',reps:'',weight:''},{name:'Weights',sets:'1',reps:'',weight:''},{name:'Abs',sets:'1',reps:'',weight:''}],notes:'Weight 215 lbs — new package start'},
+  ];
+  for (const s of sessions) {
+    await sb.from('sessions').insert({client_id:'stuart',date:s.date,snum:s.snum,exercises:s.exercises,notes:s.notes||''});
+  }
+}
+
+async function loadAllData() {
+  const { data: clients } = await sb.from('clients').select('*').order('name');
+  if (clients) {
+    clientsCache = {};
+    clients.forEach(c => { clientsCache[c.id] = c; });
+  }
+  const { data: sessions } = await sb.from('sessions').select('*').order('created_at', {ascending: false});
+  if (sessions) {
+    sessionsCache = {};
+    sessions.forEach(s => {
+      if (!sessionsCache[s.client_id]) sessionsCache[s.client_id] = [];
+      sessionsCache[s.client_id].push(s);
+    });
+  }
+  const { data: notifs } = await sb.from('notifications').select('*').order('created_at', {ascending: false});
+  if (notifs) notificationsCache = notifs;
+}
+
+function getClientSessions(clientId) {
+  return sessionsCache[clientId] || [];
+}
+
+function getHighestSnum(clientId) {
+  const sessions = getClientSessions(clientId);
+  return sessions.reduce((max, s) => Math.max(max, parseInt(s.snum) || 0), 0);
+}
+
+function showSync() {
+  const el = document.getElementById('sync-indicator');
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 2000);
+}
+
+function getClientCodes() {
+  const codes = {};
+  Object.values(clientsCache).forEach(c => { codes[c.code.toLowerCase()] = c.id; });
+  return codes;
+}
+
+function trainerLogin() {
+  if (document.getElementById('trainer-pass').value === TRAINER_PASS) {
+    show('screen-trainer');
+    populateClientSelects();
+    renderClientRoster();
+    renderTrainerHistory();
+    updateNotifDot();
+  } else {
+    document.getElementById('trainer-err').style.display = 'block';
+  }
+}
+
+function clientLogin() {
+  const code = document.getElementById('client-code-in').value.trim().toLowerCase();
+  const clientId = getClientCodes()[code];
+  if (clientId) {
+    currentClientKey = clientId;
+    viewingAsTrainer = false;
+    document.getElementById('trainer-bar').style.display = 'none';
+    loadClientDashboard(clientId);
+    show('screen-client');
+    checkClientNotif(clientId);
+  } else {
+    document.getElementById('client-err').style.display = 'block';
+  }
+}
+
+function logout() {
   show('screen-login');
-  ['trainer-pass','client-code-in'].forEach(id=>document.getElementById(id).value='');
-  ['trainer-err','client-err'].forEach(id=>document.getElementById(id).style.display='none');
-  viewingAsTrainer=false;
+  ['trainer-pass','client-code-in'].forEach(id => document.getElementById(id).value = '');
+  ['trainer-err','client-err'].forEach(id => document.getElementById(id).style.display = 'none');
+  viewingAsTrainer = false;
 }
 
-function backToTrainer(){show('screen-trainer');viewingAsTrainer=false;}
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function backToTrainer() { show('screen-trainer'); viewingAsTrainer = false; }
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
-function trainerTab(t){
-  document.querySelectorAll('[id^="ttab-"]').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('[id^="tcontent-"]').forEach(el=>el.classList.remove('active'));
-  document.getElementById('ttab-'+t).classList.add('active');
-  document.getElementById('tcontent-'+t).classList.add('active');
-  if(t==='history'){
-    const logClient=document.getElementById('log-client').value;
-    if(logClient){document.getElementById('hist-client').value=logClient;renderTrainerHistory();}
+function trainerTab(t) {
+  document.querySelectorAll('[id^="ttab-"]').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('[id^="tcontent-"]').forEach(el => el.classList.remove('active'));
+  document.getElementById('ttab-' + t).classList.add('active');
+  document.getElementById('tcontent-' + t).classList.add('active');
+  if (t === 'history') {
+    const logClient = document.getElementById('log-client').value;
+    if (logClient) { document.getElementById('hist-client').value = logClient; renderTrainerHistory(); }
     else renderTrainerHistory();
   }
-  if(t==='notif')renderNotifList();
+  if (t === 'notif') renderNotifList();
 }
 
-function clientTab(t){
-  document.querySelectorAll('[id^="ctab-"]').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('[id^="ccontent-"]').forEach(el=>el.classList.remove('active'));
-  document.getElementById('ctab-'+t).classList.add('active');
-  document.getElementById('ccontent-'+t).classList.add('active');
+function clientTab(t) {
+  document.querySelectorAll('[id^="ctab-"]').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('[id^="ccontent-"]').forEach(el => el.classList.remove('active'));
+  document.getElementById('ctab-' + t).classList.add('active');
+  document.getElementById('ccontent-' + t).classList.add('active');
 }
 
-function populateClientSelects(){
-  ['log-client','hist-client','partner-client','notif-client'].forEach(id=>{
-    const sel=document.getElementById(id);if(!sel)return;
-    const prev=sel.value;
-    sel.innerHTML=['partner-client','notif-client'].includes(id)?'<option value="">Select...</option>':'<option value="">Select client...</option>';
-    Object.keys(clientDB).forEach(key=>{const o=document.createElement('option');o.value=key;o.textContent=clientDB[key].name;sel.appendChild(o);});
-    if(prev)sel.value=prev;
+function populateClientSelects() {
+  ['log-client','hist-client','partner-client','notif-client'].forEach(id => {
+    const sel = document.getElementById(id); if (!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = ['partner-client','notif-client'].includes(id) ? '<option value="">Select...</option>' : '<option value="">Select client...</option>';
+    Object.values(clientsCache).sort((a,b) => a.name.localeCompare(b.name)).forEach(c => {
+      const o = document.createElement('option'); o.value = c.id; o.textContent = c.name; sel.appendChild(o);
+    });
+    if (prev) sel.value = prev;
   });
 }
 
-function togglePartner(){
-  partnerVisible=!partnerVisible;
-  document.getElementById('partner-section').style.display=partnerVisible?'block':'none';
-  document.getElementById('partner-toggle-btn').textContent=partnerVisible?'− Remove partner':'+ Add partner client to this session';
+function togglePartner() {
+  partnerVisible = !partnerVisible;
+  document.getElementById('partner-section').style.display = partnerVisible ? 'block' : 'none';
+  document.getElementById('partner-toggle-btn').textContent = partnerVisible ? '− Remove partner' : '+ Add partner client to this session';
 }
 
-function onPartnerSelect(){
-  const key=document.getElementById('partner-client').value;
-  if(!key)return;
-  const maxSnum=getAllSessions(key).reduce((max,s)=>Math.max(max,parseInt(s.snum)||0),0);
-  document.getElementById('partner-snum').value=maxSnum+1;
+function onPartnerSelect() {
+  const id = document.getElementById('partner-client').value;
+  if (!id) return;
+  document.getElementById('partner-snum').value = getHighestSnum(id) + 1;
 }
 
-function onClientSelect(){
-  const clientKey=document.getElementById('log-client').value;
-  if(!clientKey){document.getElementById('log-snum').value='';return;}
-  const maxSnum=getAllSessions(clientKey).reduce((max,s)=>Math.max(max,parseInt(s.snum)||0),0);
-  document.getElementById('log-snum').value=maxSnum+1;
-  document.getElementById('no-session-yet').style.display='block';
-  document.getElementById('workout-logger').style.display='none';
+function onClientSelect() {
+  const id = document.getElementById('log-client').value;
+  if (!id) { document.getElementById('log-snum').value = ''; return; }
+  document.getElementById('log-snum').value = getHighestSnum(id) + 1;
+  document.getElementById('no-session-yet').style.display = 'block';
+  document.getElementById('workout-logger').style.display = 'none';
 }
 
-function getAllSessions(clientKey){
-  return[...newSessions.filter(s=>s.client===clientKey),...(clientDB[clientKey]?.sessions||[])];
-}
-
-function getSessionsUsed(clientKey){
-  return getAllSessions(clientKey).reduce((max,s)=>Math.max(max,parseInt(s.snum)||0),0);
-}
-
-function loadPreviousSession(){
-  const clientKey=document.getElementById('log-client').value;
-  if(!clientKey){alert('Please select a client first.');return;}
-  const snum=document.getElementById('copy-snum').value.trim();
-  if(!snum){alert('Please enter a session number.');return;}
-  const found=getAllSessions(clientKey).find(s=>String(s.snum)===String(snum));
-  document.getElementById('copy-err').style.display='none';
-  if(!found){document.getElementById('copy-err').style.display='block';return;}
-  sessionExercises=found.exercises.map(e=>({...e,newReps:e.reps,newWeight:e.weight,newSets:e.sets,newName:e.name}));
-  if(!sessionExercises.length)sessionExercises=[{name:'',sets:'',reps:'',weight:'',newReps:'',newWeight:'',newSets:'',newName:''}];
-  sessionDone=new Array(sessionExercises.length).fill(false);
-  sessionSkipped=new Array(sessionExercises.length).fill(false);
-  currentExIndex=0;
-  document.getElementById('no-session-yet').style.display='none';
-  document.getElementById('workout-logger').style.display='block';
+function loadPreviousSession() {
+  const clientId = document.getElementById('log-client').value;
+  if (!clientId) { alert('Please select a client first.'); return; }
+  const snum = document.getElementById('copy-snum').value.trim();
+  if (!snum) { alert('Please enter a session number.'); return; }
+  const found = getClientSessions(clientId).find(s => String(s.snum) === String(snum));
+  document.getElementById('copy-err').style.display = 'none';
+  if (!found) { document.getElementById('copy-err').style.display = 'block'; return; }
+  sessionExercises = (found.exercises || []).map(e => ({ ...e, newReps: e.reps, newWeight: e.weight, newSets: e.sets, newName: e.name }));
+  if (!sessionExercises.length) sessionExercises = [{ name: '', sets: '', reps: '', weight: '', newReps: '', newWeight: '', newSets: '', newName: '' }];
+  sessionDone = new Array(sessionExercises.length).fill(false);
+  sessionSkipped = new Array(sessionExercises.length).fill(false);
+  currentExIndex = 0;
+  document.getElementById('no-session-yet').style.display = 'none';
+  document.getElementById('workout-logger').style.display = 'block';
   renderWorkoutLogger();
 }
 
-function startBlankSession(){
-  sessionExercises=[{name:'',sets:'',reps:'',weight:'',newReps:'',newWeight:'',newSets:'',newName:''}];
-  sessionDone=[false];sessionSkipped=[false];currentExIndex=0;
-  document.getElementById('no-session-yet').style.display='none';
-  document.getElementById('workout-logger').style.display='block';
+function startBlankSession() {
+  sessionExercises = [{ name: '', sets: '', reps: '', weight: '', newReps: '', newWeight: '', newSets: '', newName: '' }];
+  sessionDone = [false]; sessionSkipped = [false]; currentExIndex = 0;
+  document.getElementById('no-session-yet').style.display = 'none';
+  document.getElementById('workout-logger').style.display = 'block';
   renderWorkoutLogger();
 }
 
-function addExerciseMidSession(){
-  sessionExercises.push({name:'',sets:'',reps:'',weight:'',newReps:'',newWeight:'',newSets:'',newName:''});
-  sessionDone.push(false);sessionSkipped.push(false);
-  currentExIndex=sessionExercises.length-1;
+function addExerciseMidSession() {
+  sessionExercises.push({ name: '', sets: '', reps: '', weight: '', newReps: '', newWeight: '', newSets: '', newName: '' });
+  sessionDone.push(false); sessionSkipped.push(false);
+  currentExIndex = sessionExercises.length - 1;
   renderWorkoutLogger();
 }
 
-function saveCurrentExName(){
-  const el=document.getElementById('cur-ex-name');
-  if(el)sessionExercises[currentExIndex].newName=el.value;
+function saveCurrentExName() {
+  const el = document.getElementById('cur-ex-name');
+  if (el) sessionExercises[currentExIndex].newName = el.value;
 }
 
-function renderWorkoutLogger(){
-  const total=sessionExercises.length;
-  const done=sessionDone.filter(Boolean).length+sessionSkipped.filter(Boolean).length;
-  document.getElementById('ex-progress').textContent=done+'/'+total+' done';
-  const cur=sessionExercises[currentExIndex];
-  const curContainer=document.getElementById('current-ex-container');
-  if(cur&&!sessionDone[currentExIndex]&&!sessionSkipped[currentExIndex]){
-    curContainer.innerHTML=`<div class="current-ex-card">
+function renderWorkoutLogger() {
+  const total = sessionExercises.length;
+  const done = sessionDone.filter(Boolean).length + sessionSkipped.filter(Boolean).length;
+  document.getElementById('ex-progress').textContent = done + '/' + total + ' done';
+  const cur = sessionExercises[currentExIndex];
+  const curContainer = document.getElementById('current-ex-container');
+  if (cur && !sessionDone[currentExIndex] && !sessionSkipped[currentExIndex]) {
+    curContainer.innerHTML = `<div class="current-ex-card">
       <div class="current-ex-label">▶ Current exercise — tap name to edit</div>
       <input class="current-ex-name-input" type="text" id="cur-ex-name" value="${cur.newName||cur.name||''}" placeholder="Tap to enter exercise name..." />
       ${cur.reps||cur.weight?`<div class="current-ex-prev">Previous: ${cur.reps||'—'} reps · ${cur.weight||'—'} · ${cur.sets||'—'} sets</div>`:''}
@@ -577,372 +658,418 @@ function renderWorkoutLogger(){
         <button class="skip-btn" onclick="skipEx(${currentExIndex})">↷ Skip</button>
       </div>
     </div>`;
-  }else{curContainer.innerHTML='';}
-  const nextContainer=document.getElementById('next-ex-container');
-  const nextIdx=sessionExercises.findIndex((e,i)=>i>currentExIndex&&!sessionDone[i]&&!sessionSkipped[i]);
-  if(nextIdx>=0){
-    const nxt=sessionExercises[nextIdx];
-    nextContainer.innerHTML=`<div class="next-ex-card"><div style="font-size:24px;">➡️</div><div>
-      <div class="next-ex-label">Up next — get equipment ready</div>
-      <div class="next-ex-name">${nxt.newName||nxt.name||'Exercise '+(nextIdx+1)}</div>
-      ${nxt.reps?`<div class="next-ex-prev">Previous: ${nxt.reps} reps · ${nxt.weight||'bodyweight'}</div>`:''}
+  } else { curContainer.innerHTML = ''; }
+  const nextIdx = sessionExercises.findIndex((e, i) => i > currentExIndex && !sessionDone[i] && !sessionSkipped[i]);
+  const nextContainer = document.getElementById('next-ex-container');
+  if (nextIdx >= 0) {
+    const nxt = sessionExercises[nextIdx];
+    nextContainer.innerHTML = `<div class="next-ex-card"><div style="font-size:24px;">➡️</div><div>
+      <div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;">Up next</div>
+      <div style="font-size:14px;font-weight:600;color:#185FA5;">${nxt.newName||nxt.name||'Exercise '+(nextIdx+1)}</div>
+      ${nxt.reps?`<div style="font-size:12px;color:#666;">Previous: ${nxt.reps} reps · ${nxt.weight||'bodyweight'}</div>`:''}
     </div></div>`;
-  }else{nextContainer.innerHTML='';}
-  document.getElementById('ex-checklist').innerHTML=sessionExercises.map((e,i)=>`
+  } else { nextContainer.innerHTML = ''; }
+  document.getElementById('ex-checklist').innerHTML = sessionExercises.map((e, i) => `
     <div class="ex-list-item ${sessionDone[i]?'done':''} ${sessionSkipped[i]?'skipped':''} ${i===currentExIndex&&!sessionDone[i]&&!sessionSkipped[i]?'active':''}" onclick="jumpToEx(${i})">
       <span class="ex-name-col">${sessionSkipped[i]?'↷ ':sessionDone[i]?'✓ ':i===currentExIndex?'▶ ':''}${e.newName||e.name||'Exercise '+(i+1)}</span>
       <span class="ex-stats-col">${sessionDone[i]?(e.newReps||e.reps||'')+' '+(e.newWeight||e.weight||''):sessionSkipped[i]?'skipped':e.reps?e.reps+' prev':''}</span>
     </div>`).join('');
 }
 
-function markExDone(idx){
+function markExDone(idx) {
   saveCurrentExName();
-  sessionExercises[idx].newSets=document.getElementById('cur-sets')?.value||'';
-  sessionExercises[idx].newReps=document.getElementById('cur-reps')?.value||'';
-  sessionExercises[idx].newWeight=document.getElementById('cur-weight')?.value||'';
-  sessionDone[idx]=true;
-  const nextIdx=sessionExercises.findIndex((e,i)=>i>idx&&!sessionDone[i]&&!sessionSkipped[i]);
-  currentExIndex=nextIdx>=0?nextIdx:idx;renderWorkoutLogger();
+  sessionExercises[idx].newSets = document.getElementById('cur-sets')?.value || '';
+  sessionExercises[idx].newReps = document.getElementById('cur-reps')?.value || '';
+  sessionExercises[idx].newWeight = document.getElementById('cur-weight')?.value || '';
+  sessionDone[idx] = true;
+  const nextIdx = sessionExercises.findIndex((e, i) => i > idx && !sessionDone[i] && !sessionSkipped[i]);
+  currentExIndex = nextIdx >= 0 ? nextIdx : idx;
+  renderWorkoutLogger();
 }
 
-function skipEx(idx){
-  saveCurrentExName();sessionSkipped[idx]=true;
-  const nextIdx=sessionExercises.findIndex((e,i)=>i>idx&&!sessionDone[i]&&!sessionSkipped[i]);
-  currentExIndex=nextIdx>=0?nextIdx:idx;renderWorkoutLogger();
+function skipEx(idx) {
+  saveCurrentExName(); sessionSkipped[idx] = true;
+  const nextIdx = sessionExercises.findIndex((e, i) => i > idx && !sessionDone[i] && !sessionSkipped[i]);
+  currentExIndex = nextIdx >= 0 ? nextIdx : idx;
+  renderWorkoutLogger();
 }
 
-function jumpToEx(idx){currentExIndex=idx;renderWorkoutLogger();}
+function jumpToEx(idx) { currentExIndex = idx; renderWorkoutLogger(); }
 
-function finishSession(){
-  const clientKey=document.getElementById('log-client').value;
-  if(!clientKey){alert('Please select a client.');return;}
-  const snum=document.getElementById('log-snum').value;
-  const date=document.getElementById('log-date').value;
-  const notes=document.getElementById('log-notes').value;
-  const d=date?new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'}):date;
-  const exs=sessionExercises.filter((_,i)=>!sessionSkipped[i]).map(e=>({name:e.newName||e.name,sets:e.newSets||e.sets,reps:e.newReps||e.reps,weight:e.newWeight||e.weight,note:e.note||''}));
-  const skipped=sessionExercises.filter((_,i)=>sessionSkipped[i]).map(e=>e.newName||e.name).filter(Boolean);
-  const fullNotes=notes+(skipped.length?'\nSkipped: '+skipped.join(', '):'');
-  newSessions.unshift({date:d,snum,exercises:exs,notes:fullNotes,client:clientKey});
-  const partnerKey=document.getElementById('partner-client').value;
-  if(partnerVisible&&partnerKey&&partnerKey!==clientKey){
-    const pSnum=document.getElementById('partner-snum').value||snum;
-    newSessions.unshift({date:d,snum:pSnum,exercises:exs,notes:fullNotes+' (partner session with '+clientDB[clientKey]?.name+')',client:partnerKey});
+async function finishSession() {
+  const clientId = document.getElementById('log-client').value;
+  if (!clientId) { alert('Please select a client.'); return; }
+  const snum = document.getElementById('log-snum').value;
+  const date = document.getElementById('log-date').value;
+  const notes = document.getElementById('log-notes').value;
+  const d = date ? new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : date;
+  const exs = sessionExercises.filter((_, i) => !sessionSkipped[i]).map(e => ({ name: e.newName||e.name, sets: e.newSets||e.sets, reps: e.newReps||e.reps, weight: e.newWeight||e.weight, note: e.note||'' }));
+  const skipped = sessionExercises.filter((_, i) => sessionSkipped[i]).map(e => e.newName||e.name).filter(Boolean);
+  const fullNotes = notes + (skipped.length ? '\nSkipped: ' + skipped.join(', ') : '');
+  const { data } = await sb.from('sessions').insert({ client_id: clientId, date: d, snum, exercises: exs, notes: fullNotes }).select();
+  if (data) {
+    if (!sessionsCache[clientId]) sessionsCache[clientId] = [];
+    sessionsCache[clientId].unshift(data[0]);
+    showSync();
   }
-  document.getElementById('log-success-msg').textContent='Session '+(snum||'')+' for '+clientDB[clientKey].name+' saved!';
-  const banner=document.getElementById('log-success');banner.style.display='flex';
-  setTimeout(()=>banner.style.display='none',3000);
-  document.getElementById('workout-logger').style.display='none';
-  document.getElementById('no-session-yet').style.display='none';
-  document.getElementById('copy-snum').value='';document.getElementById('log-notes').value='';
-  sessionExercises=[];sessionDone=[];sessionSkipped=[];
-  renderTrainerHistory();onClientSelect();renderClientRoster();
+  const partnerKey = document.getElementById('partner-client').value;
+  if (partnerVisible && partnerKey && partnerKey !== clientId) {
+    const pSnum = document.getElementById('partner-snum').value || snum;
+    const { data: pd } = await sb.from('sessions').insert({ client_id: partnerKey, date: d, snum: pSnum, exercises: exs, notes: fullNotes + ' (partner session with ' + clientsCache[clientId]?.name + ')' }).select();
+    if (pd) {
+      if (!sessionsCache[partnerKey]) sessionsCache[partnerKey] = [];
+      sessionsCache[partnerKey].unshift(pd[0]);
+    }
+  }
+  document.getElementById('log-success-msg').textContent = 'Session ' + (snum || '') + ' for ' + clientsCache[clientId]?.name + ' saved!';
+  const banner = document.getElementById('log-success'); banner.style.display = 'flex';
+  setTimeout(() => banner.style.display = 'none', 3000);
+  document.getElementById('workout-logger').style.display = 'none';
+  document.getElementById('no-session-yet').style.display = 'none';
+  document.getElementById('copy-snum').value = '';
+  document.getElementById('log-notes').value = '';
+  sessionExercises = []; sessionDone = []; sessionSkipped = [];
+  renderTrainerHistory(); onClientSelect(); renderClientRoster();
 }
 
-function saveWeight(){
-  const w=document.getElementById('log-weight').value.trim();
-  const clientKey=document.getElementById('log-client').value;
-  if(!w||!clientKey){alert('Please select a client and enter a weight.');return;}
-  const prev=clientDB[clientKey].currentWeight;
-  clientDB[clientKey].currentWeight=parseFloat(w);
-  clientDB[clientKey].weightHistory.push({date:new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'}),weight:parseFloat(w)});
-  alert('Weight updated for '+clientDB[clientKey].name+': '+prev+' → '+w+' lbs');
-  document.getElementById('log-weight').value='';
+async function saveWeight() {
+  const w = document.getElementById('log-weight').value.trim();
+  const clientId = document.getElementById('log-client').value;
+  if (!w || !clientId) { alert('Please select a client and enter a weight.'); return; }
+  const client = clientsCache[clientId];
+  const prev = client.current_weight;
+  const newHistory = [...(client.weight_history || []), { date: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), weight: parseFloat(w) }];
+  await sb.from('clients').update({ current_weight: parseFloat(w), weight_history: newHistory }).eq('id', clientId);
+  clientsCache[clientId].current_weight = parseFloat(w);
+  clientsCache[clientId].weight_history = newHistory;
+  showSync();
+  alert('Weight updated for ' + client.name + ': ' + prev + ' → ' + w + ' lbs');
+  document.getElementById('log-weight').value = '';
   renderClientRoster();
 }
 
-function saveCardio(){
-  const date=document.getElementById('cardio-date').value;
-  const type=document.getElementById('cardio-type').value;
-  if(!type){alert('Please select an activity type.');return;}
-  const duration=document.getElementById('cardio-duration').value;
-  const distance=document.getElementById('cardio-distance').value;
-  const hr=document.getElementById('cardio-hr').value;
-  const cal=document.getElementById('cardio-cal').value;
-  const strava=document.getElementById('cardio-strava').value;
-  const parts=[type,duration?duration+' min':'',distance?distance+' miles':'',hr?'HR: '+hr+' bpm':'',cal?cal+' cal':'',strava].filter(Boolean);
-  const d=date?new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'}):date;
-  newSessions.unshift({date:d,snum:'',exercises:[],notes:'📱 Self-logged: '+parts.join(' · '),client:currentClientKey});
-  document.getElementById('cardio-success').style.display='flex';
-  setTimeout(()=>document.getElementById('cardio-success').style.display='none',3000);
-  ['cardio-type','cardio-duration','cardio-distance','cardio-hr','cardio-cal','cardio-strava'].forEach(id=>document.getElementById(id).value='');
+async function saveCardio() {
+  const date = document.getElementById('cardio-date').value;
+  const type = document.getElementById('cardio-type').value;
+  if (!type) { alert('Please select an activity type.'); return; }
+  const duration = document.getElementById('cardio-duration').value;
+  const distance = document.getElementById('cardio-distance').value;
+  const hr = document.getElementById('cardio-hr').value;
+  const cal = document.getElementById('cardio-cal').value;
+  const strava = document.getElementById('cardio-strava').value;
+  const parts = [type, duration ? duration + ' min' : '', distance ? distance + ' miles' : '', hr ? 'HR: ' + hr + ' bpm' : '', cal ? cal + ' cal' : '', strava].filter(Boolean);
+  const d = date ? new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : date;
+  const { data } = await sb.from('sessions').insert({ client_id: currentClientKey, date: d, snum: '', exercises: [], notes: '📱 Self-logged: ' + parts.join(' · ') }).select();
+  if (data) {
+    if (!sessionsCache[currentClientKey]) sessionsCache[currentClientKey] = [];
+    sessionsCache[currentClientKey].unshift(data[0]);
+    showSync();
+  }
+  document.getElementById('cardio-success').style.display = 'flex';
+  setTimeout(() => document.getElementById('cardio-success').style.display = 'none', 3000);
+  ['cardio-type','cardio-duration','cardio-distance','cardio-hr','cardio-cal','cardio-strava'].forEach(id => document.getElementById(id).value = '');
+  loadClientDashboard(currentClientKey);
 }
 
-function saveReminder(){
-  const clientKey=document.getElementById('notif-client').value;
-  const msg=document.getElementById('notif-msg').value.trim();
-  const date=document.getElementById('notif-date').value;
-  const time=document.getElementById('notif-time').value;
-  if(!clientKey||!msg){alert('Please select a client and enter a message.');return;}
-  notifications.push({clientKey,msg,date,time,read:false,id:Date.now()});
+async function saveReminder() {
+  const clientId = document.getElementById('notif-client').value;
+  const msg = document.getElementById('notif-msg').value.trim();
+  const date = document.getElementById('notif-date').value;
+  const time = document.getElementById('notif-time').value;
+  if (!clientId || !msg) { alert('Please select a client and enter a message.'); return; }
+  const { data } = await sb.from('notifications').insert({ client_id: clientId, message: msg, date, time, is_read: false }).select();
+  if (data) { notificationsCache.unshift(data[0]); showSync(); }
   updateNotifDot();
-  document.getElementById('notif-success').style.display='flex';
-  setTimeout(()=>document.getElementById('notif-success').style.display='none',3000);
-  document.getElementById('notif-msg').value='';
+  document.getElementById('notif-success').style.display = 'flex';
+  setTimeout(() => document.getElementById('notif-success').style.display = 'none', 3000);
+  document.getElementById('notif-msg').value = '';
   renderNotifList();
 }
 
-function renderNotifList(){
-  const el=document.getElementById('notif-list');
-  if(!notifications.length){el.innerHTML='<div class="empty-state">No reminders set yet.</div>';return;}
-  el.innerHTML='<div class="card">'+notifications.map(n=>`
+function renderNotifList() {
+  const el = document.getElementById('notif-list');
+  if (!notificationsCache.length) { el.innerHTML = '<div class="empty-state">No reminders set yet.</div>'; return; }
+  el.innerHTML = '<div class="card">' + notificationsCache.map(n => `
     <div class="notif-item">
       <div class="notif-content">
-        <div class="notif-title">${clientDB[n.clientKey]?.name||n.clientKey}</div>
-        <div class="notif-time">${n.date||''}${n.time?' at '+n.time:''}</div>
-        <div class="notif-msg">${n.msg}</div>
+        <div class="notif-title">${clientsCache[n.client_id]?.name || n.client_id}</div>
+        <div class="notif-time">${n.date || ''}${n.time ? ' at ' + n.time : ''}</div>
+        <div class="notif-msg">${n.message}</div>
       </div>
-      <span class="notif-badge ${n.read?'seen':''}">${n.read?'Seen':'Pending'}</span>
-    </div>`).join('')+'</div>';
+      <span class="notif-badge ${n.is_read ? 'seen' : ''}">${n.is_read ? 'Seen' : 'Pending'}</span>
+    </div>`).join('') + '</div>';
 }
 
-function updateNotifDot(){
-  const unread=notifications.filter(n=>!n.read).length;
-  document.getElementById('notif-dot').style.display=unread?'block':'none';
+function updateNotifDot() {
+  const unread = notificationsCache.filter(n => !n.is_read).length;
+  document.getElementById('notif-dot').style.display = unread ? 'block' : 'none';
 }
 
-function checkClientNotif(clientKey){
-  const pending=notifications.filter(n=>n.clientKey===clientKey&&!n.read);
-  if(pending.length){
-    document.getElementById('client-notif-text').textContent=pending[pending.length-1].msg;
-    document.getElementById('client-notif-banner').style.display='block';
+function checkClientNotif(clientId) {
+  const pending = notificationsCache.filter(n => n.client_id === clientId && !n.is_read);
+  if (pending.length) {
+    document.getElementById('client-notif-text').textContent = pending[pending.length - 1].message;
+    document.getElementById('client-notif-banner').style.display = 'block';
   }
 }
 
-function dismissNotif(){
-  notifications.filter(n=>n.clientKey===currentClientKey&&!n.read).forEach(n=>n.read=true);
-  document.getElementById('client-notif-banner').style.display='none';
-  updateNotifDot();renderNotifList();
+async function dismissNotif() {
+  const pending = notificationsCache.filter(n => n.client_id === currentClientKey && !n.is_read);
+  for (const n of pending) {
+    await sb.from('notifications').update({ is_read: true }).eq('id', n.id);
+    n.is_read = true;
+  }
+  document.getElementById('client-notif-banner').style.display = 'none';
+  updateNotifDot(); renderNotifList();
 }
 
-function buildSessionHTML(s,clientKey,globalIndex,showDelete){
-  const preview=s.exercises.length?s.exercises.slice(0,3).map(e=>e.name).join(', ')+(s.exercises.length>3?' +'+(s.exercises.length-3)+' more':''):(s.notes||'Session logged');
-  const detail=s.exercises.length?s.exercises.map(e=>{
-    const stats=[e.sets?e.sets+' sets':'',e.reps?e.reps+' reps':'',e.weight?e.weight:''].filter(Boolean).join(' · ');
-    return`<div class="ex-row"><div class="ex-name">${e.name}${e.note?'<div class="ex-note-small">'+e.note+'</div>':''}</div><div class="ex-stats">${stats}</div></div>`;
-  }).join(''):'<div style="font-size:13px;color:#aaa;padding:6px 0;">No exercises recorded.</div>';
-  const btns=showDelete?`<div class="session-btn-group">
-    <button class="btn-small gray" style="font-size:11px;padding:4px 10px;" onclick="event.stopPropagation();openEditSession('${clientKey}',${globalIndex})">✏️ Edit</button>
-    <button class="btn-small red" style="font-size:11px;padding:4px 10px;" onclick="event.stopPropagation();deleteSession('${clientKey}',${globalIndex})">🗑 Delete</button>
-  </div>`:'';
-  return`<div class="session-item">
+function buildSessionHTML(s, clientId, showDelete) {
+  const exArr = s.exercises || [];
+  const preview = exArr.length ? exArr.slice(0, 3).map(e => e.name).join(', ') + (exArr.length > 3 ? ' +' + (exArr.length - 3) + ' more' : '') : (s.notes || 'Session logged');
+  const detail = exArr.length ? exArr.map(e => {
+    const stats = [e.sets ? e.sets + ' sets' : '', e.reps ? e.reps + ' reps' : '', e.weight ? e.weight : ''].filter(Boolean).join(' · ');
+    return `<div class="ex-row"><div class="ex-name">${e.name}${e.note ? '<div class="ex-note-small">' + e.note + '</div>' : ''}</div><div class="ex-stats">${stats}</div></div>`;
+  }).join('') : '<div style="font-size:13px;color:#aaa;padding:6px 0;">No exercises recorded.</div>';
+  const btns = showDelete ? `<div class="session-btn-group">
+    <button class="btn-small gray" style="font-size:11px;padding:4px 10px;" onclick="event.stopPropagation();openEditSession('${clientId}','${s.id}')">✏️ Edit</button>
+    <button class="btn-small red" style="font-size:11px;padding:4px 10px;" onclick="event.stopPropagation();deleteSession('${clientId}','${s.id}')">🗑 Delete</button>
+  </div>` : '';
+  return `<div class="session-item">
     <div class="session-header" onclick="toggleSession(this)">
       <div style="flex:1;">
         <div class="session-date">${s.date}</div>
         <div class="session-preview">${preview}</div>
-        ${s.notes&&s.exercises.length?`<div class="session-note-text">${s.notes}</div>`:''}
+        ${s.notes && exArr.length ? `<div class="session-note-text">${s.notes}</div>` : ''}
       </div>
-      <span class="session-badge">S${s.snum||'—'}</span>
+      <span class="session-badge">S${s.snum || '—'}</span>
     </div>
     <div class="session-footer">
-      <span class="expand-hint">${s.exercises.length?'Tap to see '+s.exercises.length+' exercises ▾':''}</span>
+      <span class="expand-hint">${exArr.length ? 'Tap to see ' + exArr.length + ' exercises ▾' : ''}</span>
       ${btns}
     </div>
     <div class="session-detail">${detail}</div>
   </div>`;
 }
 
-function toggleSession(el){
-  const item=el.closest('.session-item');
-  const detail=item.querySelector('.session-detail');
-  const hint=item.querySelector('.expand-hint');
-  if(detail.classList.contains('open')){detail.classList.remove('open');if(hint)hint.style.display='inline';}
-  else{detail.classList.add('open');if(hint)hint.style.display='none';}
+function toggleSession(el) {
+  const item = el.closest('.session-item');
+  const detail = item.querySelector('.session-detail');
+  const hint = item.querySelector('.expand-hint');
+  if (detail.classList.contains('open')) { detail.classList.remove('open'); if (hint) hint.style.display = 'inline'; }
+  else { detail.classList.add('open'); if (hint) hint.style.display = 'none'; }
 }
 
-function deleteSession(clientKey,globalIndex){
-  deleteTarget={clientKey,index:globalIndex};
-  document.getElementById('delete-client-name').textContent=clientDB[clientKey]?.name||'this client';
+function deleteSession(clientId, sessionId) {
+  deleteTarget = { id: sessionId, clientId };
+  document.getElementById('delete-client-name').textContent = clientsCache[clientId]?.name || 'this client';
   document.getElementById('delete-modal').classList.add('open');
 }
 
-function confirmDelete(){
-  const{clientKey,index}=deleteTarget;
-  const newCount=newSessions.filter(s=>s.client===clientKey).length;
-  if(index<newCount){let ci=0;newSessions=newSessions.filter(s=>{if(s.client!==clientKey)return true;return ci++!==index;});}
-  else{const dbIndex=index-newCount;if(clientDB[clientKey])clientDB[clientKey].sessions.splice(dbIndex,1);}
-  closeModal('delete-modal');renderTrainerHistory();
-  if(currentClientKey===clientKey)loadClientDashboard(clientKey);
+async function confirmDelete() {
+  await sb.from('sessions').delete().eq('id', deleteTarget.id);
+  if (sessionsCache[deleteTarget.clientId]) {
+    sessionsCache[deleteTarget.clientId] = sessionsCache[deleteTarget.clientId].filter(s => s.id !== deleteTarget.id);
+  }
+  showSync();
+  closeModal('delete-modal');
+  renderTrainerHistory();
+  if (currentClientKey === deleteTarget.clientId) loadClientDashboard(deleteTarget.clientId);
 }
 
-function openEditSession(clientKey,globalIndex){
-  editTarget={clientKey,index:globalIndex};
-  const s=getAllSessions(clientKey)[globalIndex];
-  if(!s)return;
-  document.getElementById('edit-notes').value=s.notes||'';
-  editExList=s.exercises.map(e=>({...e}));
+function openEditSession(clientId, sessionId) {
+  editTarget = { id: sessionId, clientId };
+  const sessions = getClientSessions(clientId);
+  const s = sessions.find(s => s.id === sessionId);
+  if (!s) return;
+  document.getElementById('edit-notes').value = s.notes || '';
+  editExList = (s.exercises || []).map(e => ({ ...e }));
   renderEditExList();
   document.getElementById('edit-modal').classList.add('open');
 }
 
-function renderEditExList(){
-  document.getElementById('edit-ex-list').innerHTML=editExList.map((e,i)=>`
+function renderEditExList() {
+  document.getElementById('edit-ex-list').innerHTML = editExList.map((e, i) => `
     <div class="edit-ex-row">
-      <input class="edit-ex-name" type="text" value="${e.name||''}" placeholder="Exercise name" onchange="editExList[${i}].name=this.value" />
-      <input class="edit-ex-num" type="text" value="${e.reps||''}" placeholder="Reps" onchange="editExList[${i}].reps=this.value" />
-      <input class="edit-ex-num" type="text" value="${e.weight||''}" placeholder="lbs" onchange="editExList[${i}].weight=this.value" />
+      <input class="edit-ex-name" type="text" value="${e.name || ''}" placeholder="Exercise name" onchange="editExList[${i}].name=this.value" />
+      <input class="edit-ex-num" type="text" value="${e.reps || ''}" placeholder="Reps" onchange="editExList[${i}].reps=this.value" />
+      <input class="edit-ex-num" type="text" value="${e.weight || ''}" placeholder="lbs" onchange="editExList[${i}].weight=this.value" />
       <button onclick="removeEditEx(${i})" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;padding:0 4px;">✕</button>
     </div>`).join('');
 }
 
-function addEditEx(){editExList.push({name:'',sets:'',reps:'',weight:'',note:''});renderEditExList();}
-function removeEditEx(i){editExList.splice(i,1);renderEditExList();}
+function addEditEx() { editExList.push({ name: '', sets: '', reps: '', weight: '', note: '' }); renderEditExList(); }
+function removeEditEx(i) { editExList.splice(i, 1); renderEditExList(); }
 
-function saveEditSession(){
-  const{clientKey,index}=editTarget;
-  const newCount=newSessions.filter(s=>s.client===clientKey).length;
-  const updatedNotes=document.getElementById('edit-notes').value;
-  const updatedExs=editExList.filter(e=>e.name);
-  if(index<newCount){
-    let ci=0;
-    newSessions=newSessions.map(s=>{if(s.client!==clientKey)return s;if(ci++===index)return{...s,exercises:updatedExs,notes:updatedNotes};return s;});
-  }else{
-    const dbIndex=index-newCount;
-    if(clientDB[clientKey]?.sessions[dbIndex]){clientDB[clientKey].sessions[dbIndex].exercises=updatedExs;clientDB[clientKey].sessions[dbIndex].notes=updatedNotes;}
-  }
-  closeModal('edit-modal');renderTrainerHistory();
-  if(currentClientKey===clientKey)loadClientDashboard(clientKey);
+async function saveEditSession() {
+  const updatedNotes = document.getElementById('edit-notes').value;
+  const updatedExs = editExList.filter(e => e.name);
+  await sb.from('sessions').update({ exercises: updatedExs, notes: updatedNotes }).eq('id', editTarget.id);
+  const sessions = getClientSessions(editTarget.clientId);
+  const idx = sessions.findIndex(s => s.id === editTarget.id);
+  if (idx >= 0) { sessions[idx].exercises = updatedExs; sessions[idx].notes = updatedNotes; }
+  showSync();
+  closeModal('edit-modal');
+  renderTrainerHistory();
+  if (currentClientKey === editTarget.clientId) loadClientDashboard(editTarget.clientId);
 }
 
-function closeModal(id){document.getElementById(id).classList.remove('open');}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-function renderTrainerHistory(){
-  const el=document.getElementById('trainer-history-list');
-  const clientKey=document.getElementById('hist-client')?.value;
-  if(!clientKey){el.innerHTML='';return;}
-  const allSessions=getAllSessions(clientKey);
-  if(!allSessions.length){el.innerHTML='<div class="empty-state">No sessions logged yet.</div>';return;}
-  el.innerHTML='<div class="card">'+allSessions.map((s,i)=>buildSessionHTML(s,clientKey,i,true)).join('')+'</div>';
+function renderTrainerHistory() {
+  const el = document.getElementById('trainer-history-list');
+  const clientId = document.getElementById('hist-client')?.value;
+  if (!clientId) { el.innerHTML = ''; return; }
+  const sessions = getClientSessions(clientId);
+  if (!sessions.length) { el.innerHTML = '<div class="empty-state">No sessions logged yet.</div>'; return; }
+  el.innerHTML = '<div class="card">' + sessions.map(s => buildSessionHTML(s, clientId, true)).join('') + '</div>';
 }
 
-function loadClientDashboard(clientKey){
-  const client=clientDB[clientKey];
-  if(!client)return;
-  document.getElementById('client-dash-title').textContent=client.name+"'s dashboard";
-  const allSessions=getAllSessions(clientKey);
-  const totalSessions=allSessions.length;
-  const sessionsUsed=getSessionsUsed(clientKey);
-  const packageSize=client.packageSize||0;
-  const remaining=packageSize>0?packageSize-sessionsUsed:null;
-  const weightLost=client.startWeight>499?'140+ lbs':(client.startWeight&&client.currentWeight?(client.startWeight-client.currentWeight)+' lbs':'—');
-  const weightProgress=client.startWeight&&client.goalWeight&&client.startWeight>client.goalWeight?Math.min(100,Math.max(0,Math.round(((client.startWeight-client.currentWeight)/(client.startWeight-client.goalWeight))*100))):0;
+function loadClientDashboard(clientId) {
+  const client = clientsCache[clientId];
+  if (!client) return;
+  document.getElementById('client-dash-title').textContent = client.name + "'s dashboard";
+  const sessions = getClientSessions(clientId);
+  const sessionsUsed = getHighestSnum(clientId);
+  const packageSize = client.package_size || 0;
+  const remaining = packageSize > 0 ? packageSize - sessionsUsed : null;
+  const weightLost = client.start_weight > 499 ? '140+ lbs' : (client.start_weight && client.current_weight ? (client.start_weight - client.current_weight) + ' lbs' : '—');
+  const weightProgress = client.start_weight && client.goal_weight && client.start_weight > client.goal_weight ? Math.min(100, Math.max(0, Math.round(((client.start_weight - client.current_weight) / (client.start_weight - client.goal_weight)) * 100))) : 0;
 
-  let html='';
-  if(clientKey==='bob')html+=`<div class="milestone-card"><div class="milestone-title">🏆 Amazing journey</div><div class="milestone-number">${weightLost}</div><div class="milestone-sub">Lost since starting above 500 lbs · Training since ${client.sinceDate}</div></div>`;
+  let html = '';
+  if (clientId === 'bob') html += `<div class="milestone-card"><div class="milestone-title">🏆 Amazing journey</div><div class="milestone-number">${weightLost}</div><div class="milestone-sub">Lost since starting above 500 lbs · Training since ${client.since_date}</div></div>`;
 
-  html+=`<div class="metric-grid">
-    <div class="metric"><div class="metric-label">Current weight</div><div class="metric-value">${client.currentWeight||'—'} lbs</div><div class="metric-sub">Goal: ${client.goalWeight||'—'} lbs</div></div>
-    <div class="metric"><div class="metric-label">Sessions completed</div><div class="metric-value">${sessionsUsed}</div><div class="metric-sub">${packageSize>0?'of '+packageSize+' in package':'Since '+client.sinceDate}</div></div>
+  html += `<div class="metric-grid">
+    <div class="metric"><div class="metric-label">Current weight</div><div class="metric-value">${client.current_weight || '—'} lbs</div><div class="metric-sub">Goal: ${client.goal_weight || '—'} lbs</div></div>
+    <div class="metric"><div class="metric-label">Sessions completed</div><div class="metric-value">${sessionsUsed}</div><div class="metric-sub">${packageSize > 0 ? 'of ' + packageSize + ' in package' : 'Since ' + client.since_date}</div></div>
   </div>`;
 
-  if(packageSize>0){
-    const pct=Math.min(100,Math.round((sessionsUsed/packageSize)*100));
-    const isLow=remaining!==null&&remaining<=5;
-    if(isLow){
-      html+=`<div class="sr-warning"><div class="sr-warning-title">⚠️ Sessions running low!</div><div class="sr-warning-text">You have <strong>${remaining} session${remaining===1?'':'s'}</strong> remaining in your current package. Contact Monica to renew!</div></div>`;
-    }else if(remaining!==null){
-      html+=`<div class="sessions-remaining"><div class="sr-title">Package progress · ${remaining} sessions remaining</div>
+  if (packageSize > 0) {
+    const pct = Math.min(100, Math.round((sessionsUsed / packageSize) * 100));
+    const isLow = remaining !== null && remaining <= 5;
+    if (isLow) {
+      html += `<div class="sr-warning"><div style="font-size:13px;font-weight:600;color:#c0392b;">⚠️ Sessions running low!</div><div style="font-size:13px;color:#333;margin-top:4px;">You have <strong>${remaining} session${remaining === 1 ? '' : 's'}</strong> remaining. Contact Monica to renew!</div></div>`;
+    } else if (remaining !== null) {
+      html += `<div class="sessions-remaining"><div class="sr-title">Package progress · ${remaining} sessions remaining</div>
         <div class="sr-bar-bg"><div class="sr-bar-fill" style="width:${pct}%"></div></div>
         <div style="display:flex;justify-content:space-between;font-size:11px;color:#854F0B;margin-top:3px;"><span>${sessionsUsed} used</span><span>${packageSize} total</span></div>
       </div>`;
     }
   }
 
-  html+=`<div class="card"><div class="section-title">Weight goal progress</div>
-    <div style="font-size:14px;color:#333;">${client.currentWeight||'—'} lbs <span style="color:#aaa;font-size:12px;">→ goal ${client.goalWeight||'—'} lbs</span></div>
-    <div class="goal-bg"><div class="goal-fill" style="width:${weightProgress}%"></div></div>
-    <div class="goal-row"><span>Start: ${client.startWeight>499?'500+ lbs':(client.startWeight||'—')+' lbs'}</span><span>Goal: ${client.goalWeight||'—'} lbs</span></div>
-  </div>`;
+  if (client.goal_weight) {
+    html += `<div class="card"><div class="section-title">Weight goal progress</div>
+      <div style="font-size:14px;color:#333;">${client.current_weight || '—'} lbs <span style="color:#aaa;font-size:12px;">→ goal ${client.goal_weight} lbs</span></div>
+      <div class="goal-bg"><div class="goal-fill" style="width:${weightProgress}%"></div></div>
+      <div class="goal-row"><span>Start: ${client.start_weight > 499 ? '500+ lbs' : (client.start_weight || '—') + ' lbs'}</span><span>Goal: ${client.goal_weight} lbs</span></div>
+    </div>`;
+  }
 
-  if(clientKey==='bob'&&client.weightHistory?.length){
-    html+=`<div class="card"><div class="section-title">Weight journey</div><div class="weight-journey">`;
-    client.weightHistory.forEach((wh,i,arr)=>{
-      const prev=i>0?arr[i-1].weight:null;
-      const change=prev&&typeof wh.weight==='number'&&typeof prev==='number'&&wh.weight<prev?'↓ '+(prev-wh.weight)+' lbs':'';
-      html+=`<div class="wj-row"><span class="wj-date">${wh.date}</span><span class="wj-weight">${wh.weight} lbs</span>${change?`<span class="wj-change">${change}</span>`:''}</div>`;
+  if (clientId === 'bob' && client.weight_history?.length) {
+    html += `<div class="card"><div class="section-title">Weight journey</div><div class="weight-journey">`;
+    client.weight_history.forEach((wh, i, arr) => {
+      const prev = i > 0 ? arr[i - 1].weight : null;
+      const change = prev && typeof wh.weight === 'number' && typeof prev === 'number' && wh.weight < prev ? '↓ ' + (prev - wh.weight) + ' lbs' : '';
+      html += `<div class="wj-row"><span class="wj-date">${wh.date}</span><span class="wj-weight">${wh.weight} lbs</span>${change ? `<span class="wj-change">${change}</span>` : ''}</div>`;
     });
-    html+=`</div></div>`;
+    html += `</div></div>`;
   }
 
-  const remindersHTML=(client.reminders||[]).map(r=>`<div class="reminder ${r.color}"><div class="reminder-icon">${r.icon}</div><div><div class="reminder-title">${r.title}</div><div class="reminder-text">${r.text}</div></div></div>`).join('');
-  html+=`<div class="card"><div class="section-title">Reminders & tips</div>${remindersHTML}</div>`;
-  html+=`<div class="card"><div class="section-title">My profile</div>
-    <div class="profile-row"><span class="profile-key">Goal</span><span class="profile-val">${client.goal||'—'}</span></div>
-    <div class="profile-row"><span class="profile-key">Equipment</span><span class="profile-val">${client.equipment||'—'}</span></div>
-    <div class="profile-row"><span class="profile-key">Physical notes</span><span class="profile-val">${client.physNotes||'—'}</span></div>
-    <div class="profile-row"><span class="profile-key">Training style</span><span class="profile-val">${client.style||'—'}</span></div>
+  const remindersHTML = (client.reminders || []).map(r => `<div class="reminder ${r.color}"><div class="reminder-icon">${r.icon}</div><div><div class="reminder-title">${r.title}</div><div class="reminder-text">${r.text}</div></div></div>`).join('');
+  html += `<div class="card"><div class="section-title">Reminders & tips</div>${remindersHTML || '<div style="font-size:13px;color:#aaa;">No reminders set.</div>'}</div>`;
+  html += `<div class="card"><div class="section-title">My profile</div>
+    <div class="profile-row"><span class="profile-key">Goal</span><span class="profile-val">${client.goal || '—'}</span></div>
+    <div class="profile-row"><span class="profile-key">Equipment</span><span class="profile-val">${client.equipment || '—'}</span></div>
+    <div class="profile-row"><span class="profile-key">Notes</span><span class="profile-val">${client.phys_notes || '—'}</span></div>
+    <div class="profile-row"><span class="profile-key">Style</span><span class="profile-val">${client.style || '—'}</span></div>
   </div>`;
 
-  document.getElementById('client-overview-content').innerHTML=html;
-  const histEl=document.getElementById('client-history-list');
-  histEl.innerHTML=allSessions.length?'<div class="card">'+allSessions.map((s,i)=>buildSessionHTML(s,clientKey,i,false)).join('')+'</div>':'<div class="empty-state">No sessions logged yet. Check back after your next workout!</div>';
+  document.getElementById('client-overview-content').innerHTML = html;
+  const histEl = document.getElementById('client-history-list');
+  histEl.innerHTML = sessions.length ? '<div class="card">' + sessions.map(s => buildSessionHTML(s, clientId, false)).join('') + '</div>' : '<div class="empty-state">No sessions logged yet. Check back after your next workout!</div>';
   clientTab('overview');
-
-  if(clientKey==='nelson'){
-    setTimeout(()=>{
-      const canvas=document.getElementById('cc1');
-      if(canvas){if(chartInstance){chartInstance.destroy();chartInstance=null;}
-        chartInstance=new Chart(canvas,{type:'line',data:{labels:['S8','S10','S11','S13','S15'],datasets:[{label:'Reps at 70 lbs',data:[18,21,19,22,23],borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.08)',tension:0.3,fill:true,pointBackgroundColor:'#185FA5',pointRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:14,max:28,ticks:{stepSize:2,color:'#aaa'},grid:{color:'rgba(0,0,0,0.05)'}},x:{ticks:{color:'#aaa'},grid:{display:false}}}}});}
-    },100);
-  }
 }
 
-function renderClientRoster(){
-  const el=document.getElementById('client-roster');
-  const keys=Object.keys(clientDB);
-  if(!keys.length){el.innerHTML='<div class="empty-state">No clients yet.</div>';return;}
-  el.innerHTML=keys.map(key=>{
-    const c=clientDB[key];
-    const sessionsUsed=getSessionsUsed(key);
-    const packageSize=c.packageSize||0;
-    const remaining=packageSize>0?packageSize-sessionsUsed:null;
-    const isLow=remaining!==null&&remaining<=5;
-    const nextSnum=getAllSessions(key).reduce((max,s)=>Math.max(max,parseInt(s.snum)||0),0)+1;
-    return`<div class="client-card">
+function renderClientRoster() {
+  const el = document.getElementById('client-roster');
+  const clients = Object.values(clientsCache).sort((a, b) => a.name.localeCompare(b.name));
+  if (!clients.length) { el.innerHTML = '<div class="empty-state">No clients yet.</div>'; return; }
+  el.innerHTML = clients.map(c => {
+    const sessionsUsed = getHighestSnum(c.id);
+    const packageSize = c.package_size || 0;
+    const remaining = packageSize > 0 ? packageSize - sessionsUsed : null;
+    const isLow = remaining !== null && remaining <= 5;
+    const nextSnum = sessionsUsed + 1;
+    return `<div class="client-card">
       <div class="client-card-header">
         <div class="client-avatar">${c.name.charAt(0).toUpperCase()}</div>
         <div style="flex:1;">
           <div class="client-name-text">${c.name}</div>
           <div class="client-code-badge">🔑 ${c.code}</div>
-          <div class="client-sub">${c.currentWeight||'—'} lbs · Goal: ${c.goalWeight||'—'} lbs</div>
-          <div class="client-sub">Next session: #${nextSnum} · ${sessionsUsed}${packageSize?'/'+packageSize:''} sessions used${isLow?` · <span class="sessions-low">⚠️ ${remaining} remaining!</span>`:''}</div>
+          <div class="client-sub">${c.current_weight || '—'} lbs · Goal: ${c.goal_weight || '—'} lbs</div>
+          <div class="client-sub">Next session: #${nextSnum} · ${sessionsUsed}${packageSize ? '/' + packageSize : ''} sessions${isLow ? ` · <span class="sessions-low">⚠️ ${remaining} remaining!</span>` : ''}</div>
         </div>
       </div>
       <div class="client-actions">
-        <button class="btn-small" onclick="viewAsClient('${key}')">👁 View as client</button>
+        <button class="btn-small" onclick="viewAsClient('${c.id}')">👁 View as client</button>
       </div>
     </div>`;
   }).join('');
 }
 
-function viewAsClient(clientKey){
-  currentClientKey=clientKey;viewingAsTrainer=true;
-  document.getElementById('trainer-bar').style.display='flex';
-  loadClientDashboard(clientKey);show('screen-client');
-  checkClientNotif(clientKey);
+function viewAsClient(clientId) {
+  currentClientKey = clientId; viewingAsTrainer = true;
+  document.getElementById('trainer-bar').style.display = 'flex';
+  loadClientDashboard(clientId); show('screen-client');
+  checkClientNotif(clientId);
 }
 
-function toggleAddClient(){
-  const form=document.getElementById('add-client-form');
-  form.style.display=form.style.display==='block'?'none':'block';
+function toggleAddClient() {
+  const form = document.getElementById('add-client-form');
+  form.style.display = form.style.display === 'block' ? 'none' : 'block';
 }
 
-function saveNewClient(){
-  const name=document.getElementById('new-name').value.trim();
-  const code=document.getElementById('new-code').value.trim().toLowerCase();
-  if(!name||!code){alert('Please enter a client name and login code.');return;}
-  const key=name.toLowerCase().replace(/\s+/g,'_')+'_'+Date.now();
-  const wt=parseFloat(document.getElementById('new-weight').value)||null;
-  clientDB[key]={name,code,packageSize:parseInt(document.getElementById('new-package').value)||0,goal:document.getElementById('new-goal').value,style:document.getElementById('new-style').value,equipment:document.getElementById('new-equip').value,physNotes:document.getElementById('new-phys').value,currentWeight:wt,goalWeight:parseFloat(document.getElementById('new-goalwt').value)||null,startWeight:wt,sinceDate:new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'}),reminders:[{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight so she can help keep you on track!"},{icon:'💪',color:'blue',title:'Keep it up!',text:'Consistency is everything. Show up and the results will follow.'}],weightHistory:wt?[{date:'Start',weight:wt}]:[],sessions:[]};
-  populateClientSelects();renderClientRoster();
-  document.getElementById('new-client-success').style.display='flex';
-  setTimeout(()=>document.getElementById('new-client-success').style.display='none',3000);
-  ['new-name','new-code','new-goal','new-style','new-equip','new-phys','new-history','new-weight','new-goalwt','new-package'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  toggleAddClient();
+async function saveNewClient() {
+  const name = document.getElementById('new-name').value.trim();
+  const code = document.getElementById('new-code').value.trim().toLowerCase();
+  if (!name || !code) { alert('Please enter a client name and login code.'); return; }
+  const id = name.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
+  const wt = parseFloat(document.getElementById('new-weight').value) || null;
+  const newClient = {
+    id, name, code,
+    package_size: parseInt(document.getElementById('new-package').value) || 0,
+    goal: document.getElementById('new-goal').value,
+    style: document.getElementById('new-style').value,
+    equipment: document.getElementById('new-equip').value,
+    phys_notes: document.getElementById('new-phys').value,
+    current_weight: wt, goal_weight: parseFloat(document.getElementById('new-goalwt').value) || null,
+    start_weight: wt,
+    since_date: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+    reminders: [{ icon: '⚖️', color: 'red', title: 'Weight check-in', text: "Let Monica know your current weight!" }, { icon: '💪', color: 'blue', title: 'Keep it up!', text: 'Consistency is everything. Show up and the results will follow.' }],
+    weight_history: wt ? [{ date: 'Start', weight: wt }] : []
+  };
+  const { data } = await sb.from('clients').insert(newClient).select();
+  if (data) {
+    clientsCache[id] = data[0];
+    sessionsCache[id] = [];
+    showSync();
+    populateClientSelects();
+    renderClientRoster();
+    document.getElementById('new-client-success').style.display = 'flex';
+    setTimeout(() => document.getElementById('new-client-success').style.display = 'none', 3000);
+    ['new-name','new-code','new-goal','new-style','new-equip','new-phys','new-weight','new-goalwt','new-package'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    toggleAddClient();
+  }
 }
 
-document.getElementById('trainer-pass').addEventListener('keydown',e=>{if(e.key==='Enter')trainerLogin();});
-document.getElementById('client-code-in').addEventListener('keydown',e=>{if(e.key==='Enter')clientLogin();});
+document.getElementById('trainer-pass').addEventListener('keydown', e => { if (e.key === 'Enter') trainerLogin(); });
+document.getElementById('client-code-in').addEventListener('keydown', e => { if (e.key === 'Enter') clientLogin(); });
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+(async () => {
+  await seedClientsIfNeeded();
+  await loadAllData();
+  console.log('Fitness2U loaded. Clients:', Object.keys(clientsCache).length);
+})();
 </script>
 </body>
 </html>
