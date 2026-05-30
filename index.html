@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -476,12 +477,15 @@ async function loadAllData() {
     clientsCache = {};
     clients.forEach(c => { clientsCache[c.id] = c; });
   }
-  const { data: sessions } = await sb.from('sessions').select('*').order('snum', {ascending: false, nullsFirst: false});
+  const { data: sessions } = await sb.from('sessions').select('*');
   if (sessions) {
     sessionsCache = {};
     sessions.forEach(s => {
       if (!sessionsCache[s.client_id]) sessionsCache[s.client_id] = [];
       sessionsCache[s.client_id].push(s);
+    });
+    Object.keys(sessionsCache).forEach(cid => {
+      sessionsCache[cid].sort((a, b) => (parseInt(b.snum) || 0) - (parseInt(a.snum) || 0));
     });
   }
   const { data: notifs } = await sb.from('notifications').select('*').order('created_at', {ascending: false});
