@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -477,7 +476,7 @@ async function loadAllData() {
     clientsCache = {};
     clients.forEach(c => { clientsCache[c.id] = c; });
   }
-  const { data: sessions } = await sb.from('sessions').select('*').order('created_at', {ascending: false});
+  const { data: sessions } = await sb.from('sessions').select('*').order('snum', {ascending: false, nullsFirst: false});
   if (sessions) {
     sessionsCache = {};
     sessions.forEach(s => {
