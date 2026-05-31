@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -485,7 +484,7 @@ async function loadAllData() {
       sessionsCache[s.client_id].push(s);
     });
     Object.keys(sessionsCache).forEach(cid => {
-      sessionsCache[cid].sort((a, b) => (parseInt(b.snum) || 0) - (parseInt(a.snum) || 0));
+      sessionsCache[cid].sort((a, b) => new Date(b.date) - new Date(a.date));
     });
   }
   const { data: notifs } = await sb.from('notifications').select('*').order('created_at', {ascending: false});
