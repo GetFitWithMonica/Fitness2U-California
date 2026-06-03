@@ -149,6 +149,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .lcs-since{font-size:11px;color:#0F6E56;font-weight:600;margin-top:2px;}
 /* Add client button — top of clients tab */
 .add-client-btn-top{width:100%;padding:12px;font-size:14px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,#185FA5,#0F6E56);color:#fff;border:none;border-radius:12px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;}
+/* Payment info strip */
+.payment-strip{background:#f0fff4;border:1px solid #a5d6a7;border-radius:12px;padding:12px 14px;margin-bottom:1rem;}
+.payment-strip-title{font-size:11px;font-weight:600;color:#2e7d32;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.payment-strip-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.payment-chip{background:#fff;border:1px solid #a5d6a7;border-radius:8px;padding:4px 10px;font-size:12px;color:#2e7d32;font-weight:600;}
+/* Graphs */
+.graph-card{background:#fff;border-radius:16px;padding:1.25rem;margin-bottom:1rem;border:1px solid #e8e8e8;}
+.graph-title{font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:4px;}
+.graph-subtitle{font-size:11px;color:#888;margin-bottom:12px;}
+.graph-wrap{width:100%;overflow-x:auto;}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:100px;padding-bottom:20px;position:relative;}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;min-width:28px;}
+.bar-fill{width:100%;border-radius:6px 6px 0 0;background:#185FA5;transition:height .3s;min-height:2px;position:relative;}
+.bar-fill:hover{background:#0F6E56;}
+.bar-fill .bar-tooltip{display:none;position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;white-space:nowrap;}
+.bar-fill:hover .bar-tooltip{display:block;}
+.bar-label{font-size:9px;color:#888;margin-top:4px;text-align:center;}
+.line-chart-wrap{position:relative;height:120px;margin-bottom:16px;}
+.line-chart-svg{width:100%;height:100%;}
+.line-chart-labels{display:flex;justify-content:space-between;font-size:9px;color:#888;margin-top:4px;}
+.graph-empty{text-align:center;padding:1.5rem;color:#aaa;font-size:12px;}
+/* Trainer focus section in edit modal */
+.focus-section{background:#fff8e1;border:1px solid #ffe082;border-radius:12px;padding:14px;margin-bottom:12px;}
+.focus-section-title{font-size:13px;font-weight:700;color:#854F0B;margin-bottom:4px;}
+.focus-section-hint{font-size:11px;color:#a67c00;margin-bottom:10px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -1013,7 +1038,23 @@ function openEditClient(clientId) {
     {key:'equipment',label:'Equipment',val:c.equipment||'',textarea:true},
     {key:'phys_notes',label:'Physical notes',val:c.phys_notes||'',textarea:true},
   ];
-  document.getElementById('edit-client-fields').innerHTML = fields.map(f => `
+  document.getElementById('edit-client-fields').innerHTML = `
+    <div class="focus-section">
+      <div class="focus-section-title">📊 Performance Focus Graph</div>
+      <div class="focus-section-hint">Which exercise are we currently tracking for this client's progress graph? Update this whenever their training focus changes — the graph will reflect it immediately.</div>
+      <div class="field" style="margin-bottom:0">
+        <label>Focus exercise (e.g. Chest press, Pull-ups, Squats, Air squats)</label>
+        <input type="text" id="ecf-focus_exercise" value="${(c.focus_exercise||'').replace(/"/g,'&quot;')}" placeholder="e.g. Chest press" />
+      </div>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">💳 Package & Payment</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div class="field"><label>Sessions purchased</label><input type="text" id="ecf-paid_sessions" value="${(c.paid_sessions||'').toString().replace(/"/g,'&quot;')}" placeholder="e.g. 8" /></div>
+      <div class="field"><label>Amount paid</label><input type="text" id="ecf-paid_amount" value="${(c.paid_amount||'').replace(/"/g,'&quot;')}" placeholder="e.g. $260" /></div>
+    </div>
+    <div class="field"><label>Date paid</label><input type="text" id="ecf-paid_date" value="${(c.paid_date||'').replace(/"/g,'&quot;')}" placeholder="e.g. May 14, 2026" /></div>
+    <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;margin-top:4px;">👤 Client Info</div>
+  ` + fields.map(f => `
     <div class="field">
       <label>${f.label}</label>
       ${f.textarea
@@ -1038,6 +1079,10 @@ async function saveClientEdit() {
     style: document.getElementById('ecf-style').value.trim(),
     equipment: document.getElementById('ecf-equipment').value.trim(),
     phys_notes: document.getElementById('ecf-phys_notes').value.trim(),
+    focus_exercise: document.getElementById('ecf-focus_exercise').value.trim(),
+    paid_sessions: document.getElementById('ecf-paid_sessions').value.trim(),
+    paid_amount: document.getElementById('ecf-paid_amount').value.trim(),
+    paid_date: document.getElementById('ecf-paid_date').value.trim(),
   };
   await sb.from('clients').update(updates).eq('id', editClientTarget);
   Object.assign(clientsCache[editClientTarget], updates);
@@ -1055,6 +1100,87 @@ function renderTrainerHistory() {
   const sessions = getClientSessions(clientId);
   if (!sessions.length) { el.innerHTML = '<div class="empty-state">No sessions logged yet.</div>'; return; }
   el.innerHTML = '<div class="card">'+sessions.map(s => buildSessionHTML(s,clientId,true)).join('')+'</div>';
+}
+
+function buildMonthlyAttendanceGraph(sessions) {
+  if (!sessions.length) return '<div class="graph-empty">No sessions yet — check back after your first workout!</div>';
+  const counts = {};
+  sessions.forEach(s => {
+    if (!s.date) return;
+    const parts = s.date.split('/');
+    if (parts.length < 3) return;
+    const m = parseInt(parts[0]), yr = parseInt(parts[2]) + 2000;
+    const key = yr + '-' + String(m).padStart(2,'0');
+    const label = new Date(yr, m-1, 1).toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+    if (!counts[key]) counts[key] = {label, count:0};
+    counts[key].count++;
+  });
+  const sorted = Object.keys(counts).sort().slice(-8); // last 8 months
+  if (!sorted.length) return '<div class="graph-empty">Not enough data yet.</div>';
+  const max = Math.max(...sorted.map(k => counts[k].count), 1);
+  const bars = sorted.map(k => {
+    const {label, count} = counts[k];
+    const h = Math.round((count/max)*80);
+    return `<div class="bar-col"><div class="bar-fill" style="height:${h}px;"><span class="bar-tooltip">${count} session${count!==1?'s':''}</span></div><div class="bar-label">${label}</div></div>`;
+  }).join('');
+  return `<div class="bar-chart">${bars}</div>`;
+}
+
+function buildWeightGraph(weightHistory) {
+  const data = (weightHistory||[]).filter(w => typeof w.weight === 'number');
+  if (data.length < 2) return '<div class="graph-empty">Need at least 2 weight entries to show a trend.</div>';
+  const vals = data.map(w => w.weight);
+  const minV = Math.min(...vals), maxV = Math.max(...vals);
+  const range = maxV - minV || 1;
+  const W = 300, H = 100, pad = 10;
+  const pts = data.map((w,i) => {
+    const x = pad + (i/(data.length-1))*(W-pad*2);
+    const y = H - pad - ((w.weight-minV)/range)*(H-pad*2);
+    return {x, y, label:w.date, val:w.weight};
+  });
+  const pathD = pts.map((p,i) => (i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+  const dots = pts.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#185FA5"><title>${p.val} lbs · ${p.label}</title></circle>`).join('');
+  const labels = `<div class="line-chart-labels"><span>${data[0].date}</span><span>${data[data.length-1].date}</span></div>`;
+  return `<div class="line-chart-wrap"><svg class="line-chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <path d="${pathD}" fill="none" stroke="#185FA5" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="${pathD} L${pts[pts.length-1].x},${H} L${pts[0].x},${H} Z" fill="rgba(24,95,165,0.08)"/>
+    ${dots}
+  </svg></div>${labels}`;
+}
+
+function buildFocusExerciseGraph(sessions, focusExercise) {
+  if (!focusExercise) return null;
+  const focus = focusExercise.toLowerCase().trim();
+  const points = [];
+  [...sessions].reverse().forEach(s => {
+    const exArr = s.exercises||[];
+    const match = exArr.find(e => e.name && e.name.toLowerCase().includes(focus));
+    if (match && s.date) {
+      const reps = parseInt(match.reps)||0;
+      const wt = parseFloat(match.weight)||0;
+      if (reps > 0 || wt > 0) points.push({date:s.date, reps, weight:wt, snum:s.snum});
+    }
+  });
+  if (points.length < 2) return `<div class="graph-empty">Need at least 2 sessions with "${focusExercise}" logged to show a trend.</div>`;
+  const vals = points.map(p => p.reps||p.weight);
+  const minV = Math.min(...vals), maxV = Math.max(...vals);
+  const range = maxV - minV || 1;
+  const W = 300, H = 100, pad = 10;
+  const pts = points.map((p,i) => {
+    const v = p.reps||p.weight;
+    const x = pad + (i/(points.length-1))*(W-pad*2);
+    const y = H - pad - ((v-minV)/range)*(H-pad*2);
+    const tip = p.reps ? `${p.reps} reps${p.weight?' @ '+p.weight+' lbs':''}` : p.weight+' lbs';
+    return {x, y, tip, date:p.date};
+  });
+  const pathD = pts.map((p,i) => (i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+  const dots = pts.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#0F6E56"><title>${p.tip} · ${p.date}</title></circle>`).join('');
+  const labels = `<div class="line-chart-labels"><span>${points[0].date}</span><span>${points[points.length-1].date}</span></div>`;
+  return `<div class="line-chart-wrap"><svg class="line-chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <path d="${pathD}" fill="none" stroke="#0F6E56" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="${pathD} L${pts[pts.length-1].x},${H} L${pts[0].x},${H} Z" fill="rgba(15,110,86,0.08)"/>
+    ${dots}
+  </svg></div>${labels}`;
 }
 
 function loadClientDashboard(clientId) {
@@ -1076,15 +1202,22 @@ function loadClientDashboard(clientId) {
     <div class="metric"><div class="metric-label">Sessions completed</div><div class="metric-value">${sessionsUsed}</div><div class="metric-sub">${packageSize>0?'of '+packageSize+' in package':'Client since '+client.since_date}</div></div>
   </div>`;
 
+  // Package + payment info
   if (packageSize > 0) {
     const pct = Math.min(100,Math.round((sessionsUsed/packageSize)*100));
     const isLow = remaining !== null && remaining <= 5;
+    const paymentChips = [
+      client.paid_sessions ? `<span class="payment-chip">📦 ${client.paid_sessions} sessions purchased</span>` : '',
+      client.paid_date ? `<span class="payment-chip">📅 Paid ${client.paid_date}</span>` : '',
+      client.paid_amount ? `<span class="payment-chip">💳 ${client.paid_amount}</span>` : '',
+    ].filter(Boolean).join('');
     if (isLow) {
-      html += `<div class="sr-warning"><div style="font-size:13px;font-weight:600;color:#c0392b;">⚠️ Sessions running low!</div><div style="font-size:13px;color:#333;margin-top:4px;">You have <strong>${remaining} session${remaining===1?'':'s'}</strong> remaining. Contact Monica to renew!</div></div>`;
+      html += `<div class="sr-warning"><div style="font-size:13px;font-weight:600;color:#c0392b;">⚠️ Sessions running low!</div><div style="font-size:13px;color:#333;margin-top:4px;">You have <strong>${remaining} session${remaining===1?'':'s'}</strong> remaining. Contact Monica to renew!</div>${paymentChips?`<div class="payment-strip-row" style="margin-top:8px;">${paymentChips}</div>`:''}</div>`;
     } else if (remaining !== null) {
       html += `<div class="sessions-remaining"><div class="sr-title">Package progress · ${remaining} sessions remaining</div>
         <div class="sr-bar-bg"><div class="sr-bar-fill" style="width:${pct}%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:#854F0B;margin-top:3px;"><span>${sessionsUsed} used</span><span>${packageSize} total</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#854F0B;margin-top:3px;margin-bottom:${paymentChips?'8px':'0'};"><span>${sessionsUsed} used</span><span>${packageSize} total</span></div>
+        ${paymentChips?`<div class="payment-strip-row">${paymentChips}</div>`:''}
       </div>`;
     }
   }
@@ -1097,15 +1230,36 @@ function loadClientDashboard(clientId) {
     </div>`;
   }
 
-  if (clientId==='bob'&&client.weight_history?.length) {
-    html += `<div class="card"><div class="section-title">Weight journey</div><div class="weight-journey">`;
-    client.weight_history.forEach((wh,i,arr) => {
-      const prev = i>0?arr[i-1].weight:null;
-      const change = prev&&typeof wh.weight==='number'&&typeof prev==='number'&&wh.weight<prev?'↓ '+(prev-wh.weight)+' lbs':'';
-      html += `<div class="wj-row"><span class="wj-date">${wh.date}</span><span class="wj-weight">${wh.weight} lbs</span>${change?`<span class="wj-change">${change}</span>`:''}</div>`;
-    });
-    html += `</div></div>`;
+  // ── GRAPHS ──────────────────────────────────────────────
+  // Monthly attendance graph — all clients
+  html += `<div class="graph-card">
+    <div class="graph-title">📅 Monthly attendance</div>
+    <div class="graph-subtitle">Sessions per month — hover bars for count</div>
+    <div class="graph-wrap">${buildMonthlyAttendanceGraph(sessions)}</div>
+  </div>`;
+
+  // Weight over time — clients with weight history
+  const weightData = (client.weight_history||[]).filter(w => typeof w.weight === 'number');
+  if (weightData.length >= 2) {
+    html += `<div class="graph-card">
+      <div class="graph-title">⚖️ Weight over time</div>
+      <div class="graph-subtitle">${client.current_weight||'—'} lbs today · Goal: ${client.goal_weight||'—'} lbs</div>
+      <div class="graph-wrap">${buildWeightGraph(client.weight_history)}</div>
+    </div>`;
   }
+
+  // Focus exercise performance graph — clients with focus_exercise set
+  if (client.focus_exercise) {
+    const focusGraph = buildFocusExerciseGraph(sessions, client.focus_exercise);
+    if (focusGraph) {
+      html += `<div class="graph-card">
+        <div class="graph-title">💪 ${client.focus_exercise} progress</div>
+        <div class="graph-subtitle">Reps & weight trend over time</div>
+        <div class="graph-wrap">${focusGraph}</div>
+      </div>`;
+    }
+  }
+  // ── END GRAPHS ───────────────────────────────────────────
 
   const remindersHTML = (client.reminders||[]).map(r => `<div class="reminder ${r.color}"><div class="reminder-icon">${r.icon}</div><div><div class="reminder-title">${r.title}</div><div class="reminder-text">${r.text}</div></div></div>`).join('');
   html += `<div class="card"><div class="section-title">Reminders & tips</div>${remindersHTML||'<div style="font-size:13px;color:#aaa;">No reminders set.</div>'}</div>`;
