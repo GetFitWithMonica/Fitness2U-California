@@ -530,12 +530,29 @@ async function loadAllData() {
     clientsCache = {};
     clients.forEach(c => { clientsCache[c.id] = c; });
   }
-  const { data: sessions } = await sb.from('sessions').select('*').order('created_at', {ascending: false});
+  const { data: sessions } = await sb.from('sessions').select('*');
   if (sessions) {
     sessionsCache = {};
     sessions.forEach(s => {
       if (!sessionsCache[s.client_id]) sessionsCache[s.client_id] = [];
       sessionsCache[s.client_id].push(s);
+    });
+    // Sort each client's sessions by actual date, most recent first
+    // Dates are stored as M/D/YY strings e.g. "5/28/26"
+    Object.keys(sessionsCache).forEach(cid => {
+      sessionsCache[cid].sort((a, b) => {
+        const parseDate = d => {
+          if (!d) return 0;
+          const parts = d.split('/');
+          if (parts.length === 3) {
+            const [m, day, yr] = parts;
+            const fullYear = parseInt(yr) + (parseInt(yr) < 50 ? 2000 : 1900);
+            return new Date(fullYear, parseInt(m) - 1, parseInt(day)).getTime();
+          }
+          return new Date(d).getTime() || 0;
+        };
+        return parseDate(b.date) - parseDate(a.date);
+      });
     });
   }
   const { data: notifs } = await sb.from('notifications').select('*').order('created_at', {ascending: false});
