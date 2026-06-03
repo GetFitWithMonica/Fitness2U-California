@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -467,8 +468,8 @@ document.getElementById('notif-date').value = new Date().toISOString().split('T'
 
 // ─── SEED DATA ────────────────────────────────────────────────────────────────
 const SEED_CLIENTS = [
-  {id:'nelson',name:'Nelson',code:'nel2027',package_size:40,goal:'Reach 200 lbs, build muscle, improve HIIT performance',style:'Data-focused, motivated by numbers. 2x per week. Golf player.',equipment:'Speediance touchscreen cable system, Blocks free weights, weighted vest',phys_notes:'Left side weaker on pallof press. Left shoulder — do conditioning. Start left foot on side raises.',current_weight:225,goal_weight:200,start_weight:214,since_date:'Sep 2023',reminders:[{icon:'🏋️',color:'orange',title:'Shoulder conditioning',text:"Don't forget your shoulder conditioning!"},{icon:'⛳',color:'blue',title:'Golf performance',text:'Your rotation and core exercises improve your golf swing.'},{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight!"}],weight_history:[{date:'Feb 2025',weight:214},{date:'May 2026',weight:225}]},
-  {id:'bob',name:'Bob B.',code:'bobbr101',package_size:43,goal:'Improve cardiorespiratory health, healthy weight loss, strong looking biceps',style:'Steady and consistent. 3x per week. Works well with encouragement.',equipment:'Treadmill, leg press machine, free weights, upright bar',phys_notes:'Started above 500 lbs. Hydrate often. Stretch 30 sec after leg press. Straighter body on upright bar pushups. Started Mounjaro July 2025.',current_weight:358,goal_weight:300,start_weight:500,since_date:'Aug 2017',reminders:[{icon:'💧',color:'blue',title:'Hydrate!',text:'Remember to drink water regularly.'},{icon:'🦵',color:'orange',title:'Post leg press stretch',text:'Stretch 30 seconds after leg press.'},{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight!"}],weight_history:[{date:'Start (2017)',weight:'500+'},{date:'Aug 2018',weight:390},{date:'Sep 2021',weight:463},{date:'May 2026',weight:358}]},
+  {id:'nelson',name:'Nelson',code:'nel2027',package_size:40,goal:'Reach 200 lbs, build muscle, improve HIIT performance',style:'Data-focused, motivated by numbers. 2x per week. Golf player.',equipment:'Speediance touchscreen cable system, Blocks free weights, weighted vest',phys_notes:'Left side weaker on pallof press. Left shoulder — do conditioning. Start left foot on side raises.',current_weight:225,goal_weight:200,start_weight:214,since_date:'Sep 2023',focus_exercise:'Chest press',show_attendance_graph:false,show_weight_graph:false,show_performance_graph:true,reminders:[{icon:'🏋️',color:'orange',title:'Shoulder conditioning',text:"Don't forget your shoulder conditioning!"},{icon:'⛳',color:'blue',title:'Golf performance',text:'Your rotation and core exercises improve your golf swing.'},{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight!"}],weight_history:[{date:'Feb 2025',weight:214},{date:'May 2026',weight:225}]},
+  {id:'bob',name:'Bob B.',code:'bobbr101',package_size:43,goal:'Improve cardiorespiratory health, healthy weight loss, strong looking biceps',style:'Steady and consistent. 3x per week. Works well with encouragement.',equipment:'Treadmill, leg press machine, free weights, upright bar',phys_notes:'Started above 500 lbs. Hydrate often. Stretch 30 sec after leg press. Straighter body on upright bar pushups. Started Mounjaro July 2025.',current_weight:358,goal_weight:300,start_weight:500,since_date:'Aug 2017',show_attendance_graph:false,show_weight_graph:true,show_performance_graph:false,reminders:[{icon:'💧',color:'blue',title:'Hydrate!',text:'Remember to drink water regularly.'},{icon:'🦵',color:'orange',title:'Post leg press stretch',text:'Stretch 30 seconds after leg press.'},{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight!"}],weight_history:[{date:'Start (2017)',weight:'500+'},{date:'Aug 2018',weight:390},{date:'Sep 2021',weight:463},{date:'May 2026',weight:358}]},
   {id:'stuart',name:'Stuart',code:'stu101',package_size:48,goal:'Weight loss and fitness consistency',style:'3x per week. Outdoor/home workouts. Pool work in summers. Mom Jane pays.',equipment:'Jump rope, bike, weights, abs equipment',phys_notes:'No-shows noted occasionally. Pool work in summer months.',current_weight:227,goal_weight:200,start_weight:231,since_date:'Oct 2024',reminders:[{icon:'💪',color:'blue',title:'Keep showing up!',text:'Consistency is everything. 3x per week is your goal.'},{icon:'⚖️',color:'red',title:'Weight check-in',text:"Let Monica know your current weight!"}],weight_history:[{date:'Oct 2025 (S1)',weight:216},{date:'Feb 2026 (S1)',weight:215},{date:'May 2026 (S43)',weight:227}]},
   {id:'paul',name:'Paul & Lucy',code:'paul202',package_size:8,goal:'Stretching, toning, maintain fitness at 65',style:'2x per week. Age 65. Mostly stretching and toning. Lucy (mom) pays.',equipment:'Light weights, bands, Bosu, bench',phys_notes:'Gate code 4131 (trainer eyes only). Lucy has back issues. Gentle approach.',current_weight:null,goal_weight:null,start_weight:null,since_date:'Apr 2018',reminders:[{icon:'🧘',color:'blue',title:'Stretching focus',text:'Keep up your stretching routine — flexibility is key at every age.'},{icon:'💪',color:'green',title:'Great consistency!',text:'You two have been showing up for years. Keep it up!'}],weight_history:[]},
   {id:'tracyart',name:'Tracy & Art',code:'trayart201',package_size:8,goal:'Maintain fitness, strength and flexibility',style:'2x per week. Mix of yoga, walks, and strength sessions.',equipment:'Kettlebells, bands, ball, light weights',phys_notes:'Door code 9786 (trainer eyes only). Sessions alternate both together, just Tracy, or just Art.',current_weight:null,goal_weight:null,start_weight:null,since_date:'Sep 2022',reminders:[{icon:'🧘',color:'blue',title:'Yoga days',text:'Yoga sessions are great for flexibility and recovery.'},{icon:'💪',color:'green',title:'Great teamwork!',text:'Working out together keeps you both accountable.'}],weight_history:[]},
@@ -493,6 +494,10 @@ async function seedClientsIfNeeded() {
         phys_notes: c.phys_notes || '',
         current_weight: c.current_weight, goal_weight: c.goal_weight,
         start_weight: c.start_weight, since_date: c.since_date || '',
+        focus_exercise: c.focus_exercise || '',
+        show_attendance_graph: c.show_attendance_graph !== false,
+        show_weight_graph: c.show_weight_graph !== false,
+        show_performance_graph: c.show_performance_graph === true,
         reminders: c.reminders || [], weight_history: c.weight_history || []
       });
     }
@@ -1026,6 +1031,9 @@ function openEditClient(clientId) {
   editClientTarget = clientId;
   const c = clientsCache[clientId];
   if (!c) return;
+  const showAtt = c.show_attendance_graph !== false;
+  const showWt  = c.show_weight_graph !== false;
+  const showPerf = c.show_performance_graph === true;
   const fields = [
     {key:'name',label:'Name',val:c.name||''},
     {key:'code',label:'Login code',val:c.code||''},
@@ -1042,9 +1050,24 @@ function openEditClient(clientId) {
     <div class="focus-section">
       <div class="focus-section-title">📊 Performance Focus Graph</div>
       <div class="focus-section-hint">Which exercise are we currently tracking for this client's progress graph? Update this whenever their training focus changes — the graph will reflect it immediately.</div>
-      <div class="field" style="margin-bottom:0">
+      <div class="field" style="margin-bottom:12px">
         <label>Focus exercise (e.g. Chest press, Pull-ups, Squats, Air squats)</label>
         <input type="text" id="ecf-focus_exercise" value="${(c.focus_exercise||'').replace(/"/g,'&quot;')}" placeholder="e.g. Chest press" />
+      </div>
+      <div style="font-size:12px;font-weight:600;color:#854F0B;margin-bottom:8px;">Which graphs to show on this client's dashboard?</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:#333;cursor:pointer;">
+          <input type="checkbox" id="ecf-show_attendance_graph" ${showAtt?'checked':''} style="width:18px;height:18px;accent-color:#185FA5;" />
+          📅 Monthly attendance bar chart
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:#333;cursor:pointer;">
+          <input type="checkbox" id="ecf-show_weight_graph" ${showWt?'checked':''} style="width:18px;height:18px;accent-color:#185FA5;" />
+          ⚖️ Weight over time line graph
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:#333;cursor:pointer;">
+          <input type="checkbox" id="ecf-show_performance_graph" ${showPerf?'checked':''} style="width:18px;height:18px;accent-color:#0F6E56;" />
+          💪 Focus exercise performance graph
+        </label>
       </div>
     </div>
     <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">💳 Package & Payment</div>
@@ -1068,21 +1091,30 @@ function openEditClient(clientId) {
 async function saveClientEdit() {
   const c = clientsCache[editClientTarget];
   if (!c) return;
+  const newPaidSessions = document.getElementById('ecf-paid_sessions').value.trim();
+  const oldPaidSessions = (c.paid_sessions||'').toString().trim();
+  // If paid_sessions changed, reset the package_size to the new number so remaining recalculates
+  const newPackageSize = newPaidSessions && newPaidSessions !== oldPaidSessions
+    ? (parseInt(newPaidSessions)||0)
+    : (parseInt(document.getElementById('ecf-package_size').value)||0);
   const updates = {
     name: document.getElementById('ecf-name').value.trim(),
     code: document.getElementById('ecf-code').value.trim().toLowerCase(),
     since_date: document.getElementById('ecf-since_date').value.trim(),
     current_weight: parseFloat(document.getElementById('ecf-current_weight').value)||null,
     goal_weight: parseFloat(document.getElementById('ecf-goal_weight').value)||null,
-    package_size: parseInt(document.getElementById('ecf-package_size').value)||0,
+    package_size: newPackageSize,
     goal: document.getElementById('ecf-goal').value.trim(),
     style: document.getElementById('ecf-style').value.trim(),
     equipment: document.getElementById('ecf-equipment').value.trim(),
     phys_notes: document.getElementById('ecf-phys_notes').value.trim(),
     focus_exercise: document.getElementById('ecf-focus_exercise').value.trim(),
-    paid_sessions: document.getElementById('ecf-paid_sessions').value.trim(),
+    paid_sessions: newPaidSessions,
     paid_amount: document.getElementById('ecf-paid_amount').value.trim(),
     paid_date: document.getElementById('ecf-paid_date').value.trim(),
+    show_attendance_graph: document.getElementById('ecf-show_attendance_graph').checked,
+    show_weight_graph: document.getElementById('ecf-show_weight_graph').checked,
+    show_performance_graph: document.getElementById('ecf-show_performance_graph').checked,
   };
   await sb.from('clients').update(updates).eq('id', editClientTarget);
   Object.assign(clientsCache[editClientTarget], updates);
@@ -1102,28 +1134,50 @@ function renderTrainerHistory() {
   el.innerHTML = '<div class="card">'+sessions.map(s => buildSessionHTML(s,clientId,true)).join('')+'</div>';
 }
 
-function buildMonthlyAttendanceGraph(sessions) {
+function buildMonthlyAttendanceGraph(sessions, style) {
   if (!sessions.length) return '<div class="graph-empty">No sessions yet — check back after your first workout!</div>';
+  // Figure out expected sessions per month from style field
+  let perWeek = 2; // default
+  if (style) {
+    const m = style.match(/(\d)x\s*per\s*week/i);
+    if (m) perWeek = parseInt(m[1]);
+  }
+  const expectedPerMonth = Math.round(perWeek * 4.3);
   const counts = {};
   sessions.forEach(s => {
     if (!s.date) return;
     const parts = s.date.split('/');
     if (parts.length < 3) return;
-    const m = parseInt(parts[0]), yr = parseInt(parts[2]) + 2000;
-    const key = yr + '-' + String(m).padStart(2,'0');
-    const label = new Date(yr, m-1, 1).toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+    const mo = parseInt(parts[0]), yr = parseInt(parts[2]) + 2000;
+    const key = yr + '-' + String(mo).padStart(2,'0');
+    const label = new Date(yr, mo-1, 1).toLocaleDateString('en-US',{month:'short',year:'2-digit'});
     if (!counts[key]) counts[key] = {label, count:0};
     counts[key].count++;
   });
-  const sorted = Object.keys(counts).sort().slice(-8); // last 8 months
+  const sorted = Object.keys(counts).sort().slice(-8);
   if (!sorted.length) return '<div class="graph-empty">Not enough data yet.</div>';
   const max = Math.max(...sorted.map(k => counts[k].count), 1);
   const bars = sorted.map(k => {
     const {label, count} = counts[k];
-    const h = Math.round((count/max)*80);
-    return `<div class="bar-col"><div class="bar-fill" style="height:${h}px;"><span class="bar-tooltip">${count} session${count!==1?'s':''}</span></div><div class="bar-label">${label}</div></div>`;
+    const ratio = count / expectedPerMonth;
+    // Color: green if hit goal, yellow-mix if close, red if missed
+    let color;
+    if (ratio >= 0.85) color = '#0F6E56';       // green — great attendance
+    else if (ratio >= 0.6) color = '#E67E22';    // orange — missed one
+    else if (ratio >= 0.4) color = '#e0a020';    // yellow — mixed
+    else color = '#c0392b';                       // red — missed most
+    const h = Math.max(Math.round((count/max)*80), 4);
+    return `<div class="bar-col">
+      <div style="font-size:10px;color:#555;text-align:center;margin-bottom:2px;font-weight:600;">${count}</div>
+      <div class="bar-fill" style="height:${h}px;background:${color};"></div>
+      <div class="bar-label">${label}</div>
+    </div>`;
   }).join('');
-  return `<div class="bar-chart">${bars}</div>`;
+  const legend = `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:10px;color:#888;">
+    <span>🟢 On track &nbsp; 🟠 Missed 1 &nbsp; 🔴 Needs attention</span>
+    <span style="margin-left:auto;">Expected: ~${expectedPerMonth}/mo</span>
+  </div>`;
+  return `<div class="bar-chart">${bars}</div>${legend}`;
 }
 
 function buildWeightGraph(weightHistory) {
@@ -1202,7 +1256,41 @@ function loadClientDashboard(clientId) {
     <div class="metric"><div class="metric-label">Sessions completed</div><div class="metric-value">${sessionsUsed}</div><div class="metric-sub">${packageSize>0?'of '+packageSize+' in package':'Client since '+client.since_date}</div></div>
   </div>`;
 
-  // Package + payment info
+  // ── GRAPHS — shown FIRST, above package progress ────────
+  const showAtt  = client.show_attendance_graph !== false;
+  const showWt   = client.show_weight_graph !== false;
+  const showPerf = client.show_performance_graph === true;
+
+  if (showAtt) {
+    html += `<div class="graph-card">
+      <div class="graph-title">📅 Monthly attendance</div>
+      <div class="graph-subtitle">Sessions per month · green = on track · red = needs attention</div>
+      <div class="graph-wrap">${buildMonthlyAttendanceGraph(sessions, client.style)}</div>
+    </div>`;
+  }
+
+  const weightData = (client.weight_history||[]).filter(w => typeof w.weight === 'number');
+  if (showWt && weightData.length >= 2) {
+    html += `<div class="graph-card">
+      <div class="graph-title">⚖️ Weight over time</div>
+      <div class="graph-subtitle">${client.current_weight||'—'} lbs today · Goal: ${client.goal_weight||'—'} lbs</div>
+      <div class="graph-wrap">${buildWeightGraph(client.weight_history)}</div>
+    </div>`;
+  }
+
+  if (showPerf && client.focus_exercise) {
+    const focusGraph = buildFocusExerciseGraph(sessions, client.focus_exercise);
+    if (focusGraph) {
+      html += `<div class="graph-card">
+        <div class="graph-title">💪 ${client.focus_exercise} progress</div>
+        <div class="graph-subtitle">Reps & weight trend over time</div>
+        <div class="graph-wrap">${focusGraph}</div>
+      </div>`;
+    }
+  }
+  // ── END GRAPHS ───────────────────────────────────────────
+
+  // Package + payment info — below graphs
   if (packageSize > 0) {
     const pct = Math.min(100,Math.round((sessionsUsed/packageSize)*100));
     const isLow = remaining !== null && remaining <= 5;
@@ -1229,37 +1317,6 @@ function loadClientDashboard(clientId) {
       <div class="goal-row"><span>Start: ${client.start_weight>499?'500+ lbs':(client.start_weight||'—')+' lbs'}</span><span>Goal: ${client.goal_weight} lbs</span></div>
     </div>`;
   }
-
-  // ── GRAPHS ──────────────────────────────────────────────
-  // Monthly attendance graph — all clients
-  html += `<div class="graph-card">
-    <div class="graph-title">📅 Monthly attendance</div>
-    <div class="graph-subtitle">Sessions per month — hover bars for count</div>
-    <div class="graph-wrap">${buildMonthlyAttendanceGraph(sessions)}</div>
-  </div>`;
-
-  // Weight over time — clients with weight history
-  const weightData = (client.weight_history||[]).filter(w => typeof w.weight === 'number');
-  if (weightData.length >= 2) {
-    html += `<div class="graph-card">
-      <div class="graph-title">⚖️ Weight over time</div>
-      <div class="graph-subtitle">${client.current_weight||'—'} lbs today · Goal: ${client.goal_weight||'—'} lbs</div>
-      <div class="graph-wrap">${buildWeightGraph(client.weight_history)}</div>
-    </div>`;
-  }
-
-  // Focus exercise performance graph — clients with focus_exercise set
-  if (client.focus_exercise) {
-    const focusGraph = buildFocusExerciseGraph(sessions, client.focus_exercise);
-    if (focusGraph) {
-      html += `<div class="graph-card">
-        <div class="graph-title">💪 ${client.focus_exercise} progress</div>
-        <div class="graph-subtitle">Reps & weight trend over time</div>
-        <div class="graph-wrap">${focusGraph}</div>
-      </div>`;
-    }
-  }
-  // ── END GRAPHS ───────────────────────────────────────────
 
   const remindersHTML = (client.reminders||[]).map(r => `<div class="reminder ${r.color}"><div class="reminder-icon">${r.icon}</div><div><div class="reminder-title">${r.title}</div><div class="reminder-text">${r.text}</div></div></div>`).join('');
   html += `<div class="card"><div class="section-title">Reminders & tips</div>${remindersHTML||'<div style="font-size:13px;color:#aaa;">No reminders set.</div>'}</div>`;
