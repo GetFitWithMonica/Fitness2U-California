@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1159,6 +1160,20 @@ async function saveEditSession() {
   const sessions = getClientSessions(editTarget.clientId);
   const idx = sessions.findIndex(s => s.id === editTarget.id);
   if (idx >= 0) { sessions[idx].date=updatedDate; sessions[idx].snum=updatedSnum; sessions[idx].exercises=updatedExs; sessions[idx].notes=updatedNotes; }
+  // Re-sort after date change so order stays correct without needing to sign out
+  sessionsCache[editTarget.clientId].sort((a, b) => {
+    const parseDate = d => {
+      if (!d) return 0;
+      const parts = d.split('/');
+      if (parts.length === 3) {
+        const [m, day, yr] = parts;
+        const fullYear = parseInt(yr) + (parseInt(yr) < 50 ? 2000 : 1900);
+        return new Date(fullYear, parseInt(m) - 1, parseInt(day)).getTime();
+      }
+      return new Date(d).getTime() || 0;
+    };
+    return parseDate(b.date) - parseDate(a.date);
+  });
   showSync(); closeModal("edit-modal"); renderTrainerHistory();
   if (currentClientKey === editTarget.clientId) loadClientDashboard(editTarget.clientId);
 }
