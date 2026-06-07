@@ -1305,31 +1305,37 @@ function buildMonthlyAttendanceGraph(sessions, style) {
     const mo = parseInt(parts[0]), yr = parseInt(parts[2]) + 2000;
     const key = yr + '-' + String(mo).padStart(2,'0');
     const label = new Date(yr, mo-1, 1).toLocaleDateString('en-US',{month:'short',year:'2-digit'});
-    if (!counts[key]) counts[key] = {label, count:0};
-    counts[key].count++;
+    if (!counts[key]) counts[key] = {label, trainerCount:0, selfCount:0};
+    // Count trainer sessions and self-logged activities separately
+    const isSelf = s.self_logged || (s.notes && s.notes.startsWith('📱 Self-logged'));
+    if (isSelf) counts[key].selfCount++;
+    else counts[key].trainerCount++;
   });
   const sorted = Object.keys(counts).sort().slice(-8);
   if (!sorted.length) return '<div class="graph-empty">Not enough data yet.</div>';
-  const max = Math.max(...sorted.map(k => counts[k].count), 1);
+  const max = Math.max(...sorted.map(k => counts[k].trainerCount + counts[k].selfCount), 1);
   const bars = sorted.map(k => {
-    const {label, count} = counts[k];
-    const ratio = count / expectedPerMonth;
-    // Color: green if hit goal, yellow-mix if close, red if missed
+    const {label, trainerCount, selfCount} = counts[k];
+    const total = trainerCount + selfCount;
+    const ratio = total / expectedPerMonth;
+    // Color based on how close they are to their weekly frequency goal
+    // Self-logged counts toward attendance — shows commitment between sessions
     let color;
-    if (ratio >= 0.85) color = '#0F6E56';       // green — great attendance
-    else if (ratio >= 0.6) color = '#E67E22';    // orange — missed one
-    else if (ratio >= 0.4) color = '#e0a020';    // yellow — mixed
-    else color = '#c0392b';                       // red — missed most
-    const h = Math.max(Math.round((count/max)*80), 4);
+    if (ratio >= 0.75) color = '#0F6E56';      // green — on track
+    else if (ratio >= 0.5) color = '#E67E22';   // orange — missed a couple
+    else if (ratio >= 0.3) color = '#e0a020';   // yellow — mixed
+    else color = '#c0392b';                      // red — needs attention
+    const h = Math.max(Math.round((total/max)*80), 4);
+    const selfNote = selfCount > 0 ? ` (+${selfCount} own)` : '';
     return `<div class="bar-col">
-      <div style="font-size:10px;color:#555;text-align:center;margin-bottom:2px;font-weight:600;">${count}</div>
-      <div class="bar-fill" style="height:${h}px;background:${color};"></div>
+      <div style="font-size:10px;color:#555;text-align:center;margin-bottom:2px;font-weight:600;">${total}${selfNote}</div>
+      <div class="bar-fill" style="height:${h}px;background:${color};border-radius:6px 6px 0 0;"></div>
       <div class="bar-label">${label}</div>
     </div>`;
   }).join('');
   const legend = `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:10px;color:#888;">
-    <span>🟢 On track &nbsp; 🟠 Missed 1 &nbsp; 🔴 Needs attention</span>
-    <span style="margin-left:auto;">Expected: ~${expectedPerMonth}/mo</span>
+    <span>🟢 On track &nbsp; 🟠 Missed a couple &nbsp; 🔴 Needs attention</span>
+    <span style="margin-left:auto;">Goal: ~${expectedPerMonth}/mo · +own = self-logged</span>
   </div>`;
   return `<div class="bar-chart">${bars}</div>${legend}`;
 }
