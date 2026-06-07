@@ -453,6 +453,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <h3 style="color:#185FA5;">✏️ Edit session</h3>
       <button onclick="closeModal('edit-modal')" style="background:none;border:none;cursor:pointer;font-size:22px;color:#aaa;padding:0;line-height:1;">✕</button>
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <div class="field" style="margin-bottom:0"><label>Date</label><input type="text" id="edit-date" placeholder="e.g. 6/7/26" /></div>
+      <div class="field" style="margin-bottom:0"><label>Session #</label><input type="text" id="edit-snum" placeholder="e.g. 15" /></div>
+    </div>
     <div class="field"><label>Session notes</label><textarea id="edit-notes" style="min-height:60px;font-size:13px;"></textarea></div>
     <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;margin-bottom:8px;">Exercises</div>
     <div id="edit-ex-list"></div>
@@ -696,16 +700,13 @@ function clientTab(t) {
   document.querySelectorAll('[id^="ccontent-"]').forEach(el => el.classList.remove('active'));
   document.getElementById('ctab-' + t).classList.add('active');
   document.getElementById('ccontent-' + t).classList.add('active');
-  // Auto-refresh client data when switching tabs — no sign-out needed
-  if (currentClientKey) {
-    if (t === 'overview') loadClientDashboard(currentClientKey);
-    if (t === 'history') {
-      const histEl = document.getElementById('client-history-list');
-      const sessions = getClientSessions(currentClientKey);
-      histEl.innerHTML = sessions.length
-        ? '<div class="card">'+sessions.map(s => buildSessionHTML(s,currentClientKey,false)).join('')+'</div>'
-        : '<div class="empty-state">No sessions logged yet. Check back after your next workout!</div>';
-    }
+  // Refresh history tab data without reloading the whole dashboard
+  if (currentClientKey && t === 'history') {
+    const histEl = document.getElementById('client-history-list');
+    const sessions = getClientSessions(currentClientKey);
+    histEl.innerHTML = sessions.length
+      ? '<div class="card">'+sessions.map(s => buildSessionHTML(s,currentClientKey,false)).join('')+'</div>'
+      : '<div class="empty-state">No sessions logged yet. Check back after your next workout!</div>';
   }
 }
 
@@ -1128,33 +1129,37 @@ function openEditSession(clientId, sessionId) {
   editTarget = {id:sessionId,clientId};
   const s = getClientSessions(clientId).find(s => s.id === sessionId);
   if (!s) return;
-  document.getElementById('edit-notes').value = s.notes||'';
+  document.getElementById("edit-date").value = s.date||"";
+  document.getElementById("edit-snum").value = s.snum||"";
+  document.getElementById("edit-notes").value = s.notes||"";
   editExList = (s.exercises||[]).map(e => ({...e}));
   renderEditExList();
-  document.getElementById('edit-modal').classList.add('open');
+  document.getElementById("edit-modal").classList.add("open");
 }
 
 function renderEditExList() {
-  document.getElementById('edit-ex-list').innerHTML = editExList.map((e,i) => `
+  document.getElementById("edit-ex-list").innerHTML = editExList.map((e,i) => `
     <div class="edit-ex-row">
-      <input class="edit-ex-name" type="text" value="${e.name||''}" placeholder="Exercise name" onchange="editExList[${i}].name=this.value" />
-      <input class="edit-ex-num" type="text" value="${e.reps||''}" placeholder="Reps" onchange="editExList[${i}].reps=this.value" />
-      <input class="edit-ex-num" type="text" value="${e.weight||''}" placeholder="lbs" onchange="editExList[${i}].weight=this.value" />
+      <input class="edit-ex-name" type="text" value="${e.name||""}" placeholder="Exercise name" onchange="editExList[${i}].name=this.value" />
+      <input class="edit-ex-num" type="text" value="${e.reps||""}" placeholder="Reps" onchange="editExList[${i}].reps=this.value" />
+      <input class="edit-ex-num" type="text" value="${e.weight||""}" placeholder="lbs" onchange="editExList[${i}].weight=this.value" />
       <button onclick="removeEditEx(${i})" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;padding:0 4px;">✕</button>
-    </div>`).join('');
+    </div>`).join("");
 }
 
-function addEditEx() { editExList.push({name:'',sets:'',reps:'',weight:'',note:''}); renderEditExList(); }
+function addEditEx() { editExList.push({name:"",sets:"",reps:"",weight:"",note:""}); renderEditExList(); }
 function removeEditEx(i) { editExList.splice(i,1); renderEditExList(); }
 
 async function saveEditSession() {
-  const updatedNotes = document.getElementById('edit-notes').value;
+  const updatedDate = document.getElementById("edit-date").value.trim();
+  const updatedSnum = document.getElementById("edit-snum").value.trim();
+  const updatedNotes = document.getElementById("edit-notes").value;
   const updatedExs = editExList.filter(e => e.name);
-  await sb.from('sessions').update({exercises:updatedExs,notes:updatedNotes}).eq('id',editTarget.id);
+  await sb.from("sessions").update({date:updatedDate,snum:updatedSnum,exercises:updatedExs,notes:updatedNotes}).eq("id",editTarget.id);
   const sessions = getClientSessions(editTarget.clientId);
   const idx = sessions.findIndex(s => s.id === editTarget.id);
-  if (idx >= 0) { sessions[idx].exercises = updatedExs; sessions[idx].notes = updatedNotes; }
-  showSync(); closeModal('edit-modal'); renderTrainerHistory();
+  if (idx >= 0) { sessions[idx].date=updatedDate; sessions[idx].snum=updatedSnum; sessions[idx].exercises=updatedExs; sessions[idx].notes=updatedNotes; }
+  showSync(); closeModal("edit-modal"); renderTrainerHistory();
   if (currentClientKey === editTarget.clientId) loadClientDashboard(editTarget.clientId);
 }
 
