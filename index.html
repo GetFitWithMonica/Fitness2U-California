@@ -600,11 +600,22 @@ async function loadAllData() {
   if (clients) {
     clientsCache = {};
     clients.forEach(c => {
-      // Parse JSON fields that Supabase may return as strings
-      if (typeof c.reminders === 'string') { try { c.reminders = JSON.parse(c.reminders); } catch(e) { c.reminders = []; } }
-      if (typeof c.weight_history === 'string') { try { c.weight_history = JSON.parse(c.weight_history); } catch(e) { c.weight_history = []; } }
-      if (!Array.isArray(c.reminders)) c.reminders = [];
-      if (!Array.isArray(c.weight_history)) c.weight_history = [];
+      // Parse JSON fields that Supabase may return as strings (sometimes double-encoded)
+      let reminders = c.reminders;
+      if (typeof reminders === 'string') {
+        try { reminders = JSON.parse(reminders); } catch(e) { reminders = []; }
+      }
+      if (typeof reminders === 'string') {
+        try { reminders = JSON.parse(reminders); } catch(e) { reminders = []; }
+      }
+      c.reminders = Array.isArray(reminders) ? reminders : [];
+
+      let weightHistory = c.weight_history;
+      if (typeof weightHistory === 'string') {
+        try { weightHistory = JSON.parse(weightHistory); } catch(e) { weightHistory = []; }
+      }
+      c.weight_history = Array.isArray(weightHistory) ? weightHistory : [];
+
       clientsCache[c.id] = c;
     });
   }
@@ -1060,6 +1071,9 @@ function updateNotifDot() {
 }
 
 function checkClientNotif(clientId) {
+  // Always hide banner first when switching clients
+  document.getElementById('client-notif-banner').style.display = 'none';
+  document.getElementById('client-notif-text').textContent = '';
   const pending = notificationsCache.filter(n => n.client_id === clientId && !n.is_read);
   if (pending.length) {
     document.getElementById('client-notif-text').textContent = pending[pending.length-1].message;
